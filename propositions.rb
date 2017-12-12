@@ -7,8 +7,26 @@ class Proposition
   end
 end
 
+class VariableProposition < Proposition
+
+end
+
 class Implication < Proposition
   attr_accessor :premise, :conclusion
+end
+
+class Conjunction
+  attr_accessor :conjuncts
+end
+
+def conj(*conjuncts)
+  new_prop = Conjunction.new
+  new_prop.conjuncts = conjuncts
+  return new_prop
+end
+
+class Disjunction
+  attr_accessor :disjuncts
 end
 
 class Proof
@@ -19,9 +37,24 @@ class DeductionRule
   attr_accessor :hypotheses, :conclusion
 end
 
+class PropList
+  attr_accessor :propositions
+  def fits(rule)
+    self == rule.hyps
+  end
+end
+
 def rule(hyps,conc)
   rule = DeductionRule.new
   rule.hypotheses = hyps
   rule.conclusion = conc
   return rule
 end
+
+p_1 = VariableProposition.new
+p_2 = VariableProposition.new
+
+modus_ponens = rule([p_1,p_1.implies(p_2)],p_2)
+and_intro = rule([p_1,p_2],conj(p_1,p_2))
+
+$rules = [modus_ponens,and_intro]
