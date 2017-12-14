@@ -13,6 +13,10 @@ end
 
 class Implication < Proposition
   attr_accessor :premise, :conclusion
+  def ==(obj)
+    (self.premise == obj.premise) &&
+    (self.conclusion == obj.conclusion)
+  end
 end
 
 class Conjunction
@@ -35,6 +39,10 @@ end
 
 class DeductionRule
   attr_accessor :hypotheses, :conclusion
+  def ==(obj)
+    (self.hypotheses == obj.hypotheses) &&
+    (self.conclusion == obj.conclusion)
+  end
 end
 
 class PropList
@@ -54,7 +62,14 @@ end
 p_1 = VariableProposition.new
 p_2 = VariableProposition.new
 
-modus_ponens = rule([p_1,p_1.implies(p_2)],p_2)
-and_intro = rule([p_1,p_2],conj(p_1,p_2))
+def modus_ponens(a,b)
+  hyps = [a,a.implies(b)]
+  conc = b
+  return rule(hyps,conc)
+end
 
-$rules = [modus_ponens,and_intro]
+
+# modus_ponens = rule([p_1,p_1.implies(p_2)],p_2)
+# and_intro = rule([p_1,p_2],conj(p_1,p_2))
+#
+# $rules = [modus_ponens,and_intro]
