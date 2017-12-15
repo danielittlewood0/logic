@@ -16,6 +16,7 @@ describe Conjunction do
     prop = conj(a,b)
     expect(prop.class).to eq Conjunction
     expect(prop.conjuncts).to eq [a,b]
+    expect(prop.free_vars).to eq [a,b]
   end
 end
 
@@ -39,6 +40,31 @@ describe PropList do
       sym = :modus_ponens
       new_mp = send(sym,p_1,p_2)
       expect(new_mp).to eq modus_ponens
+    end
+  end
+
+  describe 'check logic' do
+    p_1 = VariableProposition.new
+    p_2 = VariableProposition.new
+    a = Proposition.new
+    b = Proposition.new
+
+    it 'can make substitutions' do
+      old_implication = p_1.implies(p_2)
+      new_implication = a.implies(b)
+      hash = {p_1 => a, p_2 => b}
+      expect(hash[p_1]).to eq a
+      expect(hash[p_2]).to eq b
+      expect(old_implication.substitute(hash)).to eq new_implication
+    end
+
+    modus_ponens = rule([p_1.implies(p_2),p_1],p_2)
+    rules = [modus_ponens]
+
+    it 'can deduce by modus_ponens' do
+      easy_proof = Proof.new
+      easy_proof.steps = [p_1,p_1.implies(p_2)]
+      p easy_proof.entails?(modus_ponens,p_2)
     end
   end
 end
