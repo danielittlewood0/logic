@@ -42,9 +42,6 @@ class Proposition
     end
   end
 
-  def try_to_match(prop)
-    return {self => prop}
-  end
 
   def substitute(hash)
     if atomic?
@@ -67,6 +64,30 @@ class Proposition
       return new_prop
     end
   end
+
+  def try_to_match(fixed,substitutions)
+    variable = self
+    if variable.atomic?
+      if substitutions.keys.include?(variable)
+        if substitutions[variable] == fixed
+          return
+        else
+          return false
+        end
+      else
+        substitutions[variable] = fixed
+      end
+    else
+      if (variable.class != fixed.class) || (variable.args.length != fixed.args.length)
+        return false
+      else
+        for i in 0...variables.args.length
+          variable.args[i].try_to_match(fixed,substitutions)
+        end
+      end
+    end
+  end
+
 end
 
 class VariableProposition < Proposition
@@ -83,14 +104,6 @@ class Implication < Proposition
   def atomic?
     false
   end
-
-  def try_to_match(prop)
-    unless prop.is_a?(Implication)
-      return false
-    end
-    h = {self.premise => prop.premise, self.conclusion => prop.conclusion}
-    return h
-  end
 end
 
 class Conjunction < Proposition
@@ -98,21 +111,6 @@ class Conjunction < Proposition
 
   def atomic?
     false
-  end
-
-  def try_to_match(prop)
-    unless prop.is_a?(Conjunction)
-      return false
-    end
-    h = Hash.new
-    for i in 0...self.conjuncts.length
-      if self.conjuncts[i].atomic?
-        h[self.conjuncts[i]] = prop.conjuncts[i]
-      else
-        return false
-      end
-    end
-    return h
   end
 end
 
@@ -128,21 +126,6 @@ class Disjunction < Proposition
   def atomic?
     false
   end
-
-  def try_to_match(prop)
-    unless prop.is_a?(Disjunction)
-      return false
-    end
-    h = hash.new
-    for i in 0...self.disjuncts.length
-      if self.disjuncts[i].atomic?
-        h[self.disjuncts[i]] = prop.disjuncts[i]
-      else
-        return false
-      end
-    end
-    return h
-  end
 end
 
 class Proof
@@ -156,16 +139,33 @@ class Proof
   def entails?(rule,conclusion)
     rule_vars = rule.free_vars
     proof_vars = self.steps.map{|step| step.free_vars}.flatten.uniq
-    forced_subs = rule.conclusion.try_to_match(conclusion)
-    if forced_subs.nil?
-      return false
-    end
-    remaining_vars = proof_vars - forced_subs.keys
-    rule.hypotheses.each do |hyp|
-      self.steps.each do |step|
-        maybe_hash = hyp.try_to_match(step)
-        raise 'this is complicated'
+    forced_subs = {}
+    rule.conclusion.try_to_match(conclusion,forced_subs)
+    # return forced_subs
+    # if forced_subs == false
+    #   return false
+    # end
+    unmatched_hyps = rule.hypotheses.dup
+    matched_hyps = []
+    substitutions = [forced_subs.dup]
+    used_steps = []
+    unused_steps = self.steps.dup
+    while true do
+      if (unused_steps == []) && (matched_hyps == [])
+        return false
       end
+      if (unused_steps == []) && (matched_hyps != [])
+        #backup
+        next
+      end
+      if (unmatched_hyps == [])
+        return substitutions.last
+      end
+      #go down a layer
+      #need a new steps list for each hypothesis!
+      # next_hypothesis = unmatched_hyps.pop
+      # next_step = unused_steps.pop
+      # matched_hyps <<
     end
 
   end
