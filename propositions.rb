@@ -1,4 +1,9 @@
 class Proposition
+  attr_accessor :name
+  def ==(obj)
+    (self.class == obj.class) && (self.name == obj.name)
+  end
+
   def implies(b)
     new_prop = Implication.new
     new_prop.premise = self
@@ -81,7 +86,7 @@ class Proposition
       if (variable.class != fixed.class) || (variable.args.length != fixed.args.length)
         return false
       else
-        for i in 0...variables.args.length
+        for i in 0...variable.args.length
           variable.args[i].try_to_match(fixed,substitutions)
         end
       end
@@ -96,10 +101,11 @@ end
 
 class Implication < Proposition
   attr_accessor :premise, :conclusion
-  def ==(obj)
-    (self.premise == obj.premise) &&
-    (self.conclusion == obj.conclusion)
-  end
+  # def ==(obj)
+  #   (obj.is_a?(Implication)) &&
+  #   (self.premise == obj.premise) &&
+  #   (self.conclusion == obj.conclusion)
+  # end
 
   def atomic?
     false
@@ -141,33 +147,55 @@ class Proof
     proof_vars = self.steps.map{|step| step.free_vars}.flatten.uniq
     forced_subs = {}
     rule.conclusion.try_to_match(conclusion,forced_subs)
-    # return forced_subs
-    # if forced_subs == false
-    #   return false
-    # end
+
     unmatched_hyps = rule.hypotheses.dup
     matched_hyps = []
     substitutions = [forced_subs.dup]
+    steps_history = []
     used_steps = []
+
     unused_steps = self.steps.dup
+    next_hypothesis = unmatched_hyps.pop
+    matched_hyps << next_hypothesis.dup
+    # p matched_hyps.map{|obj| obj.name}
     while true do
+      p unused_steps
+      next_step = unused_steps.pop
+      maybe_subs = substitutions.last.dup
+
+      # p maybe_subs.map{|k,v| "#{k.name} maps to #{v.name}"}
+      match = next_hypothesis.try_to_match(next_step,maybe_subs)
+      if match == false
+        p 'hello'
+        p next_hypothesis.name
+        p next_step.name
+      elsif (unmatched_hyps == [])
+        return substitutions.last
+      else
+        # new_subs = substitutions.last.dup.merge(maybe_subs)
+        substitutions << maybe_subs
+        next_hypothesis = unmatched_hyps.pop
+        matched_hyps << next_hypothesis.dup
+        steps_history << unused_steps.dup
+        used_steps << next_step.dup
+        unused_steps = self.steps.dup.select{|step| !used_steps.include?(step)}# - used_steps
+      end
+      # if (unmatched_hyps == [])
+      #   return substitutions.last
+      # end
+
       if (unused_steps == []) && (matched_hyps == [])
         return false
-      end
-      if (unused_steps == []) && (matched_hyps != [])
-        #backup
+      elsif (unused_steps == []) && (matched_hyps != [])
+        p 'hi'
+        unmatched_hyps << next_hypothesis.dup
+        next_hypothesis = matched_hyps.pop
+        unused_steps = steps_history.pop
+        substitutions.pop
+        used_steps.pop
         next
       end
-      if (unmatched_hyps == [])
-        return substitutions.last
-      end
-      #go down a layer
-      #need a new steps list for each hypothesis!
-      # next_hypothesis = unmatched_hyps.pop
-      # next_step = unused_steps.pop
-      # matched_hyps <<
     end
-
   end
 end
 

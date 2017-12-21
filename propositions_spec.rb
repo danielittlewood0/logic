@@ -58,13 +58,19 @@ describe PropList do
       expect(old_implication.substitute(hash)).to eq new_implication
     end
 
-    modus_ponens = rule([p_1.implies(p_2),p_1],p_2)
+    p_1.name = 'p_1'
+    p_2.name = 'p_2'
+    implication = p_1.implies(p_2)
+    implication.name = 'p_1 => p_2'
+    modus_ponens = rule([implication,p_1],p_2)
     rules = [modus_ponens]
 
     it 'can deduce by modus_ponens' do
       easy_proof = Proof.new
-      easy_proof.steps = [p_1,p_1.implies(p_2)]
-      p easy_proof.entails?(modus_ponens,p_2)
+      easy_proof.steps = [p_1,implication]
+      subs = easy_proof.entails?(modus_ponens,p_2)
+      expect(p_2.substitute(subs)).to eq p_2
+      # expect(p_1.substitute(subs)).to eq p_1
     end
   end
 end
