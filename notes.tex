@@ -12,7 +12,7 @@
 		\item \texttt{ComplementProposition}: Represents the proposition $\neg p$. 
 		\item \texttt{ImplicativeProposition}: Represents the proposition $p \Rightarrow q$. 
 	\end{itemize}
-
+	
 	\subsection*{Deduction Rules}
 	A deduction rule is modelled as one of the introduction or elimination rules for Natural Deduction. 
 	
@@ -22,7 +22,7 @@
 		\RightLabel{$\wedge$-int}
 		\BinaryInfC{$A \wedge B$}
 	\end{prooftree}
-
+	
 	Deduction rules have a weird property - they are universally quantified over propositions, but nobody ever writes them this way. When we write the above rule, it is simply understood that the propositions $A$ and $B$ may be replaced by any other definite proposition we like. But then we risk running into ambiguity if we \textit{do} have definite propositions called $A$ and $B$. \\
 	
 	This can probably just be modelled by the fact that the particular deduction is wrapped up inside of a rule. 
