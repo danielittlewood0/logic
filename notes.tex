@@ -1,0 +1,34 @@
+\documentclass{article}
+\usepackage{bussproofs}
+
+\begin{document}
+	\section*{Modelling Propositional Logic}
+	\subsection*{Propositions}
+	We model propositions as having five basic types: 
+	\begin{itemize}
+		\item \texttt{AtomicProposition}: Meant to model the atomic propositions of the language, $p,q,r\ldots$. 
+		\item \texttt{ConjunctiveProposition}: Represents the conjuction $p_{1} \wedge \ldots \wedge p_{n}$ of $n$ propositions.
+		\item \texttt{DisjunctiveProposition}: Similarly $p_{1} \vee \ldots \vee p_{n}$. 
+		\item \texttt{ComplementProposition}: Represents the proposition $\neg p$. 
+		\item \texttt{ImplicativeProposition}: Represents the proposition $p \Rightarrow q$. 
+	\end{itemize}
+	
+	\subsection*{Deduction Rules}
+	A deduction rule is modelled as one of the introduction or elimination rules for Natural Deduction. 
+	
+	\begin{prooftree}
+		\AxiomC{$A$}
+		\AxiomC{$B$}
+		\RightLabel{$\wedge$-int}
+		\BinaryInfC{$A \wedge B$}
+	\end{prooftree}
+	
+	Deduction rules have a weird property - they are universally quantified over propositions, but nobody ever writes them this way. When we write the above rule, it is simply understood that the propositions $A$ and $B$ may be replaced by any other definite proposition we like. But then we risk running into ambiguity if we \textit{do} have definite propositions called $A$ and $B$. \\
+	
+	This can probably just be modelled by the fact that the particular deduction is wrapped up inside of a rule. 
+	
+	\subsection*{Proof}
+	A proof is a sequence of propositions, each of which is a consequence of the earlier hypotheses, according to one of the rules of deduction. In order to simplify the check for validity, we implement a \texttt{ProofStep} object, which is supposed to model a single application of a deduction rule. A \texttt{Proof} is then a sequence of \texttt{ProofStep}s, and the proof is valid if and only if all of its steps are valid. \\
+	
+	There is an interesting 
+\end{document}
