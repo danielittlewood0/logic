@@ -45,32 +45,57 @@ describe PropList do
 
   describe 'check logic' do
     p_1 = VariableProposition.new
+    p_1.name = 'p_1'
     p_2 = VariableProposition.new
+    p_2.name = 'p_2'
     a = Proposition.new
+    a.name = 'a'
     b = Proposition.new
+    b.name = 'b'
 
     it 'can make substitutions' do
       old_implication = p_1.implies(p_2)
+      old_implication.name = 'p_1 => p_2'
       new_implication = a.implies(b)
+      new_implication.name = 'a => b'
       hash = {p_1 => a, p_2 => b}
+      subs = {}
+      old_implication.try_to_match(new_implication,subs)
+      p subs.map{|k,v| "#{k.name} maps to #{v.name}"}
+      p "*****************"
       expect(hash[p_1]).to eq a
       expect(hash[p_2]).to eq b
-      expect(old_implication.substitute(hash)).to eq new_implication
+      # expect(old_implication.substitute(hash)).to eq new_implication
     end
 
-    p_1.name = 'p_1'
-    p_2.name = 'p_2'
+    # p_1.name = 'p_1'
+    # p_2.name = 'p_2'
     implication = p_1.implies(p_2)
     implication.name = 'p_1 => p_2'
-    modus_ponens = rule([implication,p_1],p_2)
+    modus_ponens = rule([implication.dup,p_1],p_2)
     rules = [modus_ponens]
 
     it 'can deduce by modus_ponens' do
       easy_proof = Proof.new
       easy_proof.steps = [p_1,implication]
       subs = easy_proof.entails?(modus_ponens,p_2)
-      expect(p_2.substitute(subs)).to eq p_2
+
+
+      # expect(p_2.substitute(subs)).to eq p_2
       # expect(p_1.substitute(subs)).to eq p_1
+    end
+
+    it 'trying to use modus ponens' do
+      new_implication = a.implies(b)
+      new_implication.name = 'a => b'
+      c = Proposition.new
+      c.name = 'c'
+      proof = Proof.new
+      proof.steps = [a,new_implication,c]
+      subs = proof.entails?(modus_ponens,b)
+      p "***************"
+      modus_ponens.hypotheses.each{|hyp| p hyp.substitute(subs)}
+
     end
   end
 end

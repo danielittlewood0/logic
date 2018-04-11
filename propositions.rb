@@ -87,9 +87,14 @@ class Proposition
         return false
       else
         for i in 0...variable.args.length
-          variable.args[i].try_to_match(fixed,substitutions)
+          variable.args[i].try_to_match(fixed.args[i],substitutions)
         end
       end
+    end
+    if variable.substitute(substitutions) == fixed
+      return substitutions
+    else
+      return false
     end
   end
 
@@ -106,6 +111,10 @@ class Implication < Proposition
   #   (self.premise == obj.premise) &&
   #   (self.conclusion == obj.conclusion)
   # end
+
+  def name
+    "#{premise.name} => #{conclusion.name}"
+  end
 
   def atomic?
     false
@@ -143,8 +152,6 @@ class Proof
   end
 
   def entails?(rule,conclusion)
-    rule_vars = rule.free_vars
-    proof_vars = self.steps.map{|step| step.free_vars}.flatten.uniq
     forced_subs = {}
     rule.conclusion.try_to_match(conclusion,forced_subs)
 
@@ -152,51 +159,82 @@ class Proof
     matched_hyps = []
     substitutions = [forced_subs.dup]
     steps_history = []
+    unused_steps = []
+    unused_steps = self.steps.dup
     used_steps = []
 
-    unused_steps = self.steps.dup
-    next_hypothesis = unmatched_hyps.pop
-    matched_hyps << next_hypothesis.dup
-    # p matched_hyps.map{|obj| obj.name}
-    while true do
-      p unused_steps
-      next_step = unused_steps.pop
-      maybe_subs = substitutions.last.dup
+    matched_hyps << unmatched_hyps.pop
 
-      # p maybe_subs.map{|k,v| "#{k.name} maps to #{v.name}"}
-      match = next_hypothesis.try_to_match(next_step,maybe_subs)
-      if match == false
-        p 'hello'
-        p next_hypothesis.name
-        p next_step.name
-      elsif (unmatched_hyps == [])
-        return substitutions.last
-      else
-        # new_subs = substitutions.last.dup.merge(maybe_subs)
-        substitutions << maybe_subs
-        next_hypothesis = unmatched_hyps.pop
-        matched_hyps << next_hypothesis.dup
-        steps_history << unused_steps.dup
-        used_steps << next_step.dup
-        unused_steps = self.steps.dup.select{|step| !used_steps.include?(step)}# - used_steps
-      end
-      # if (unmatched_hyps == [])
-      #   return substitutions.last
-      # end
-
-      if (unused_steps == []) && (matched_hyps == [])
+    loop do
+      p substitutions.map{|subs| subs.map{|k,v| "#{k.name} maps to #{v.name}"}}
+      p "unmatched hyps: #{unmatched_hyps.map{|hyp| hyp.name}}"
+      p "matched hyps: #{matched_hyps.map{|hyp| hyp.name}}"
+      p "unused steps: #{unused_steps.map{|prop| prop.name}}"
+      p "used steps: #{used_steps.map{|prop| prop.name}}"
+      p "steps history: #{steps_history.map{|steps| steps.map{|prop| prop.name}}}"
+      if (matched_hyps == []) && (unused_steps == [])
         return false
-      elsif (unused_steps == []) && (matched_hyps != [])
-        p 'hi'
-        unmatched_hyps << next_hypothesis.dup
-        next_hypothesis = matched_hyps.pop
+      elsif (unused_steps != [])
+        puts "tried to match #{matched_hyps[-1].name} to #{unused_steps[-1].name}"
+        # match = _try_next_step(matched_hyps,unused_steps,used_steps,substitutions)
+        next_step = unused_steps.pop
+        subs_to_update = substitutions.last.dup
+        match = matched_hyps.last.try_to_match(next_step,subs_to_update)
+        if match
+          used_steps << next_step
+          substitutions << subs_to_update
+        end
+      elsif (matched_hyps != []) && (unused_steps == [])
+        puts 'backed up'
+        # _back_up(unmatched_hyps,matched_hyps,used_steps,unused_steps,steps_history,substitutions)
+        unmatched_hyps << matched_hyps.pop
+        used_steps.pop
         unused_steps = steps_history.pop
         substitutions.pop
-        used_steps.pop
-        next
+        p "unused steps: #{unused_steps.map{|prop| prop.name}}"
+
+        match = false
       end
+      if (match != false) && (unmatched_hyps != [])
+        puts "match succeeded: subs are now #{substitutions.last.map{|k,v| "#{k.name} maps to #{v.name}"}}"
+        # _try_next_hyp(unmatched_hyps,matched_hyps,used_steps,unused_steps,steps_history)
+        matched_hyps << unmatched_hyps.pop
+        steps_history << unused_steps.dup
+        unused_steps = self.steps.dup.select{|step| !used_steps.include?(step)}
+      elsif match && (unmatched_hyps == [])
+        'win!!'
+        return substitutions.last
+      else
+        p 'match failed'
+      end
+      p "********************"
     end
   end
+
+  def _try_next_step(matched_hyps,unused_steps,used_steps,substitutions)
+    next_step = unused_steps.pop
+    subs_to_update = substitutions.last.dup
+    match = matched_hyps.last.try_to_match(next_step,subs_to_update)
+    if match
+      used_steps << next_step
+      substitutions << subs_to_update
+    end
+    return match
+  end
+
+  def _back_up(unmatched_hyps,matched_hyps,used_steps,unused_steps,steps_history,substitutions)
+    unmatched_hyps << matched_hyps.pop
+    used_steps.pop
+    # unused_steps = steps_history.pop
+    substitutions.pop
+  end
+
+  def _try_next_hyp(unmatched_hyps,matched_hyps,used_steps,unused_steps,steps_history)
+    matched_hyps << unmatched_hyps.pop
+    steps_history << unused_steps.dup
+    unused_steps = self.steps.dup.select{|step| !used_steps.include?(step)}
+  end
+
 end
 
 class DeductionRule
