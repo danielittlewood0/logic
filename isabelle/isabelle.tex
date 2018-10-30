@@ -1,0 +1,302 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\newcommand{\AND}{\wedge}
+\newcommand{\OR}{\vee}
+\newcommand{\bool}{\textit{bool}}
+\newcommand{\nat}{\textit{nat}}
+\newcommand{\listt}{\textit{list}}
+\newcommand{\True}{\textit{True}}
+\newcommand{\False}{\textit{False}}
+\newcommand{\qq}{\texttt{"}}
+
+\begin{document}
+\section{Introduction}
+Isabelle proves things with HOL (higher order logic). Allegedly
+\begin{center}
+HOL = Functional Programming + Logic.
+\end{center}
+
+\section{Programming and Proving}
+\subsection{Basics}
+\subsubsection{Types, Terms and Formulas}
+HOL is a typed logic whose type systems resemble that of functional 
+programming languages. There are:
+
+\begin{itemize}
+\item \textbf{base types,} in particular \bool, \nat, 
+  \textit{int}
+\item \textbf{type constructors,} in particular \listt and 
+  \textit{set}. Type constructors are written postfix, so \textit{nat 
+    list} and not \textit{list nat}
+\item \textbf{function types,} denoted by $\Rightarrow$.
+\item \textbf{type variables,} denoted by $'a$, $'b$, etc. ``as in ML''.
+\end{itemize}
+Type constructors have precedence over $\Rightarrow$ (bind more 
+tightly), so that $'a \Rightarrow 'b\,\listt$ means 
+$'a \Rightarrow ('b \,\listt)$ and not $('a \Rightarrow 'b)\,list$.
+
+\textbf{Terms} are formed by applying functions to arguments. If $f$ 
+is of type $\tau_{1} \Rightarrow \tau_{2}$ and $t$ is a term of type 
+$\tau_{1}$, then $f\,\,t$ is a term of type $\tau_{2}$. We write 
+$t::\tau$ to mean ``$t$ is a term of type $\tau$''. 
+
+Binary operations like $+$, $\le$ are defined infix by syntactic 
+sugar. Their referents are, e.g. `\verb|op + x y|' for \verb|x+y|. 
+
+HOL supports constructs from functional programming, such as: 
+$(\textit{if }b\textit{ then }t_{1}\textit{ else }t_{2})$
+$(\textit{let }x=t\textit{ in }u)$
+$(\textit{case } t \textit{ of } \textit{pat}_{1} \Rightarrow t_{1} | \ldots | \textit{pat}_{n} \Rightarrow t_{n})$
+(these must appear in parentheses if they occur inside other constructs).
+Terms may also contain lambda abstractions like $\lambda x.x$.
+
+\textbf{Formulas} are of type \bool. There are basic constants $True$ and $False$, and the usual connectives $\neg, \AND,\OR,\to$. 
+
+\textbf{Equality} is available in the form of the infix function $=$ of type $`a \Rightarrow `a \Rightarrow \bool$. Also available for formulas, where it means `if and only if'. 
+
+\textbf{Quantifiers} are written $\forall x .P $ and $\exists x.P$.
+
+Isabelle infers types, but sometimes (in the case of overloaded 
+notation) you need to provide it with a \textbf{type constraint} in 
+the form $m+(n::nat)$. 
+
+There are the meta-objects $\bigwedge$ and $\implies$ which are 
+Isabelle terms (not part of HOL) but mean the same as $\forall$ and 
+$\Rightarrow$ logically. this will become clear later. 
+
+There is also an abbreviation $[A_{1};\ldots;A_{n}] \implies A$ for 
+$A_{1} \implies A_{2} \implies \ldots A$ (all arrows associate to the 
+right, as usual).
+
+We can also use inference rule notation, like so:
+PUT AN EXAMPLE HERE
+
+\subsubsection{Theories}
+
+A \textbf{theory} is a named collection of types, functions and 
+theorems, like a module in programming. All Isabelle text must belong 
+to a theory. The syntax is:
+
+\begin{flalign*}
+&\textbf{theory } T \\
+&\textbf{imports } T_{1},\ldots,T_{n} \\
+&\textbf{begin} \\
+&\textit{definitions, theorems and proofs} \\
+&\textbf{end} 
+\end{flalign*}
+
+The $T_{i}$ are the direct \textbf{parent theories} to $T$. 
+Everything in the parent theories is automatically visible. Each 
+theory $T$ must be written into a \textbf{theory file} names $T.thy$. 
+
+\subsubsection{Quotation marks}
+To distinguish Isabelle syntax/keywords from HOL terms,everything 
+HOL-specific (terms and types) should be enclosed in quotation marks 
+$\qq $\ldots$\qq $. The quotation marks around an identifier may be dropped. 
+
+In syntax errors, the HOL syntax is called the \textbf{inner syntax}, 
+while the theory language syntax is called the \textbf{outer syntax}. 
+
+\subsection{Types \bool, \nat, and \listt}
+
+These are the most important predefined datatypes. 
+
+\subsubsection{Type \bool} 
+The type of boolean values has the definition
+$\textbf{datatype}\,\,\bool = \True\,|\,\False$
+with the two values \True\ and \False\ and predefined functions 
+$\neg,\AND,\OR,\to$. Conjunction might be defined by pattern 
+matching as:
+
+\newcommand{\conj}{\textit{conj}}
+\begin{flalign*}
+&\textbf{fun}\,\,\conj\,::
+  \qq \bool \Rightarrow \bool \Rightarrow \bool\qq \,\, \textbf{where}\\
+&\qq \conj\,\,\True\,\,\True = \True\qq |\\
+&\qq \conj\, \_ \, \_ = \False\qq 
+\end{flalign*}
+
+\subsubsection{Type $nat$}
+Natural numbers have a recursive definition:
+\newcommand{\Suc}{\textit{Suc}}
+\newcommand{\add}{\textit{add}}
+$\textbf{datatype}\,\,nat = 0 |\,\,\Suc\,\,nat$
+So the natural numbers are $0,\,\,\Suc\,0, \,\,\Suc(\Suc\,0),\ldots$,etc. 
+You could define your own addition as follows:
+
+\begin{flalign*}
+& \textbf{fun} \,\,\add\,::\,\qq nat \Rightarrow nat \Rightarrow nat\qq \,\,\textbf{where}\\
+&\qq \add\,\,0\,\,n = n\qq |\\
+&\qq \add\,\,(\Suc\,\,m)\,\,n = \Suc(\,\,\add\,\,m\,\,n)\qq \\
+\end{flalign*}
+
+And we can prove that \qq $\add\,m\,0=m$\qq :
+\begin{flalign*}
+&\textbf{lemma}\,\,\add\_02:\,\,\qq \add\,m\,0=m\qq \\
+&\textbf{apply}(\,induction\,\,m) \\
+&\textbf{apply}(\,auto\,)\\
+&\textbf{done}
+\end{flalign*}
+The \textbf{lemma} command begins the proof and names the lemma. Then $\textbf{apply}(induction\,m)$ tells Isabelle to begin a proof by induction. This initiates the proof state:
+\begin{enumerate}
+\item $\add\,0\,0 = 0$
+\item $\bigwedge m.\,\,\add\,m\,0 = m \implies \,\add(\Suc\,m)\,0 = \Suc\,m$
+\end{enumerate}
+The numbered lines are \textit{subgoals}. The command $\textbf{apply}(auto)$ tells Isabelle to try and prove all the subgoals automatically. It turns out they are easy so they can be done in this way. The lemma may now be inspected with the command
+$\textbf{thm}\,\,\add\_02$
+which displays 
+$\add\,\,?m\,0 = ?m$
+The free variable $m$ has been replaced by the \textbf{unknown} $?m$. The difference is purely operational: unknowns can be instantiated. 
+\textbf{Overloading:} Lots of Isabelle notation (especially about arithmetic) is overloaded. Therefore type constraints are needed to disambiguate. For instance, in the goal $x+0=x$, we might not be able to prove the it unless we know $x::nat$. On the other hand, in the expression $x=\Suc\,x$, it is inferred that $x::nat$ because $\Suc$ is not overloaded. 
+
+\subsubsection*{An Informal Proof}
+A more detailed explanation of the proof given in the previous section might look like this:
+$\textbf{Lemma}\,\,\add\,m\,0 = m$
+$\textbf{Proof}\,\,\text{by induction on $m$.}$
+\begin{itemize}
+\item Case 0 (the base case): $\add\,0\,0 = 0$ holds by the definition of $\add$.
+\item Case $\Suc\,m$ (the induction step): We assume $\add\,m\,0 = m$, the induction hypothesis (IH), and we need to show $\add\,\,(\Suc\,m)\,0 = \Suc\,m$. The proof is as follows:
+\begin{flalign*}
+\add(\Suc\,m)\,0 &= \Suc(\add\,m\,0) &&\text{by definition of $\add$}&
+ &=\Suc m& &\text{by IH}&
+\end{flalign*}
+\end{itemize}
+Throughout, we use the abbreviation IH to refer to induction hypotheses. 
+It is possible to give proofs in various styles (roughly, machine-like to human-like). We will look later at an Isabelle proof language which is more legible. 
+
+
+\subsubsection{Type $list$}
+A definition of $list$ might look like:
+$\textbf{datatype}\,\,`a\,\,list = Nil\,|\,Cons\,\,`a\,\qq `a\,\,list\qq $
+\begin{itemize}
+\item The type $`a\,\,list$ is the type of lists all of whose elements are of type $`a$. Since $`a$ is a type variable, we say lists are \textbf{polymorphic} (since the elements of a list can be of any type) and \textbf{homogenous} (since all the elements must be of the same type). 
+\item Lists have two constructors: $Nil$ (the empty list) and $Cons$, which prepends an element of type $`a$ to the list. 
+\item $`a\,\,list$ requires quotation marks on the RHS but not the LHS. 
+\end{itemize}
+
+We can also define two standard functions, append and reverse.
+
+\begin{flalign*}
+&\textbf{fun}\,\,app\,::\,\qq `a\,\,list \Rightarrow `a\,\,list \Rightarrow `a\,\,list\qq \,\,\textbf{where}\\
+&\qq app\,\,Nil\,\,ys=ys\qq |\\
+&\qq app\,\,(Cons\,x\,xs)\,\,ys = Cons\,\,x\,\,(app\,\,xs\,\,ys)\qq \\
+&\\
+&\textbf{fun}\,\,rev\,::\,\qq `a\,\,list \Rightarrow `a\,\,list\qq \,\,\textbf{where} \\
+&\qq rev\,\,Nil = Nil\qq  |\\
+&\qq rev\,\,(Cons\,x\,xs) = app\, (rev\,\,xs) (Cons\,\,x\,\,Nil)\qq 
+\end{flalign*}
+
+By default, the variables $xs,ys,zs$ are of $list$ type (what, those 
+exact referents?). 
+Command \textbf{value} evaluates a term. For example,
+$\textbf{value}\,\,\qq rev(Cons\,\,True\,\,(Cons\,\,False\,\,Nil))\qq $
+yields the value $Cons\,\,False\,\,(Cons\,\, True\,\,Nil)$. It works 
+with symbols too:
+
+$\textbf{value}\,\,\qq rev(Cons\,\,a\,(Cons\,\,b\,\,Nil))\qq $
+returns $Cons\,\,b\,(Cons\,\,a\,\,Nil)$.
+There is a proof plan for induction on lists, called 
+\textbf{structural induction}. It consists of showing:
+
+\begin{itemize}
+\item The base case, $P\,Nil$
+\item The inductive case, $P\,\,x\,\,xs$ given $P\,\,xs$. 
+\end{itemize}
+
+\subsubsection{The Proof Process}
+
+We give a demonstration of a typical proof process, with the test theorem
+$\textbf{theorem}\,\,rev\_rev\,\,[simp]:\,\,\qq rev(rev\,\,xs) = xs\qq $
+The commands \textbf{theorem} and \textbf{lemma} are interchangable. 
+The attribute $simp$ tells Isabelle to use this theorem as a 
+\textbf{simplification rule}, and replace $rev\,(rev\,\,xs)$ by $xs$ 
+in future simplifications.
+
+The proof is by induction:
+$\textbf{apply}\,(induction\,\,xs)$
+As explained before, we get two subgoals:
+
+\begin{enumerate}
+\item $rev\,(rev\,\,Nil) = Nil$
+\item $\bigwedge x1 xs.\,\,rev\,(rec\,\,xs)=xs \implies rec\,(rev\,Cons\,\,x1\,\,xs)) = Cons\,\,x1\,\,xs$
+\end{enumerate}
+
+We attempt to solve these goals automatically:
+$\textbf{apply}(auto)$
+This proves subgoal 1 easily, leaving the simplified subgoal 2 as the 
+new subgoal 1:
+
+\begin{enumerate}
+\item $\bigwedge x1\,\,xs. \,\,rev(\,rev\,\,xs) \implies rec\,(\,app\,(rev\,\,xs)\,(Cons\,\,x1\,\,Nil)) = Cons\,\,x1\,\,xs$
+\end{enumerate}
+
+Simplifying this subgoal further suggests a lemma:
+
+\subsubsection*{A First Lemma}
+
+Here is our lemma:
+
+$$\textbf{lemma}\,\,rev\_app\,\,[simp]:\,\qq rev(\,app\,\,xs\,\,y)=app\,(rev\,\,ys)\,(rev\,\,xs)\qq $$
+($(gh)^{-1} = h^{-1}g^{-1}$)
+
+There are two variables that we could induct on, but since $app$ is 
+defined by recursion on the first argument, $xs$ is the correct one:
+
+$\textbf{apply}(induction\,\,xs)$
+
+Both hypotheses for induction are not automatically solved, and we 
+must abandon this proof attempt for a simpler lemma:
+
+\subsubsection*{A Second Lemma}
+The lemma is:
+$\textbf{lemma}\,\,app\_Nil2\,[simp]:\,\,\qq app\,\,xs\,\,Nil=xs\qq $
+(appending the empty list does nothing). The auto-induction routine handles this easily. Back to the first lemma.
+Returning to the stuck proof attempt, the base case is now resolved, but the induction step is simplified to something big. It needs to find out that $app$ is associative.
+\subsubsection*{Associativity of $app$}
+The lemma 
+$\textbf{lemma}\,\,app\_assoc\,[simp]:\,\qq app\,(app\,\,xs\,\,ys)\,\,zs=app\,\,xs\,\,(app\,\,ys\,\,zs)\qq $
+is successfully handled by the inductive prover. The other proofs now also succeed. 
+\subsubsection*{Another informal proof}
+We show the proof of $app$'s associativity informally:
+$\textbf{Lemma}\,\,app\,(app\,\,xs\,\,ys)\,\,zs=app\,\,xs\,\,(app\,\,ys\,\,zs)$
+$\textbf{Proof}\,$by induction on $xs$.
+\begin{itemize}
+\item Case $Nil$: $app\,(app\,\,Nil\,\,ys)\,\,zs=app\,\,ys\,\,zs = app\,\,Nil\,(app\,\,ys\,\,zs)$ holds by definition.
+\item Case $Cons\,\,x\,\,xs$: Assume
+$$app\,(app\,\,xs\,\,ys)\,\,zs = app\,\,xs\,(app\,\,ys\,\,zs)$$
+and attempt to show
+$$app\,(app\,(Cons\,\,x\,\,xs)\,\,ys)\,\,zs = app\,(Cons\,\,x\,\,xs)\,\,(app\,\,ys\,\,zs).$$
+\end{itemize}
+The proof goes forward by applying simplification rules (def, def, IH, def). BUT in both the base case and the induction step, the last step is not a simplification (left to right), it is a simplification right to left. They `meet in the middle'. 
+
+\subsubsection{Predefined Lists}
+The Isabelle lists are the same as the ones just defined, but with more syntactic sugar:
+\begin{itemize}
+\item $[]$ is $Nil$,
+\item $x\,\#\,xs$ is $Cons\,\,x\,\,xs$,
+\item $[x_{1},\ldots,x_{n}]$ is $x_{1}\#\ldots\#x_{n}\#[]$, and
+\item $xs\,\,@\,\,ys$ is $app\,\,xs\,\,ys$
+\end{itemize}
+There are standard predefined list functions: $length$, $map$, $hd$ (head), $tl$ (tail). Obviously $hd\,[]$ does not exist, but HOL only knows about total functions, so we say $hd$ is `underdefined' rather than `undefined'.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

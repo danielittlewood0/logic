@@ -1,0 +1,631 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{bussproofs}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+%\theoremstyle{plain}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\numberwithin{definition}{section}
+\setlength{\parindent}{0pt}
+\newcommand{\entails}{\models}
+\newcommand{\proves}{\vdash}
+
+
+\begin{document}
+\section{Propositional Calculus}
+A \textit{proposition} is any logical statement, really. In contrast to \textit{predicates}, a proposition contains no variables, and hence there can be nothing to quantify over. Examples include ``Socrates is a man'' or ``Plato is a man''. Notice that these two propositions are formally unrelated (so the semantics of propositional logic is weak in this sense) - whereas in predicate logic we may consider these two instances of a predicate: ``man(Socrates)'' or ``man(Plato)''. If $p$ and $q$ are propositions, then $p$ and $q$ are also propositions. We would like to know in what sense, say ``$p \Rightarrow p$'' is a true proposition. 
+\subsection{Propositions}
+Let $P$ be a set of \textit{primitive propositions}. These are semantically meaningless. We might interpret them as being ``true'' or ``false'', but that is our business. The set of propositions derived from $P$, denoted by $L(P)$, is defined recursively by:
+\begin{itemize}
+\item If $p \in P$, then $p \in L(P)$ 
+\item $\bot \in L(P)$, where ``$\bot$'' is interpreted as ``false''
+\item If $p,q \in L$ then $(p \Rightarrow q) \in L(P)$
+\end{itemize}
+\textbf{Example.} If our set of primitives is $\{p,q,r\}$, then $p \Rightarrow q$, $p \Rightarrow \bot$, $((p \Rightarrow q) \Rightarrow (p \Rightarrow r))$ are propositions. $L$ can be formally defined as a union of set ``of depth $n$'' in the recursion. \\
+These formulas can be viewed as elements of a context free grammar, as follows:
+\begin{align*}
+P \Rightarrow p \\
+P \Rightarrow (Q \Rightarrow R)
+\end{align*}
+where $P,Q,R$ are non-terminal symbols, and $p$ is an arbitrary terminal symbol, the collection of which is $\{\bot\} \cup P$. 
+\begin{definition}[Logical symbol]
+\hspace{1pt}\\[5pt]
+\emph{
+\begin{tabular}{cccc}
+$\neg p$ & ``not $p$'' & is an abbreviation for & $(p \Rightarrow \bot)$ \\
+$p \wedge q$& ``$p$ and $q$'' & is an abbreviation for & $\neg(p \Rightarrow (\neg q))$ \\
+$p \vee q$ & ``$p$ or $q$'' & is an abbreviation for & $(\neg p) \Rightarrow q$ \\
+\end{tabular}}
+\end{definition}
+Nerds try to express everything in terms of implies because it makes proofs more convenient. But do not do this in a real implementation.
+\subsection{Semantic Entailment}
+The idea of semantic entailment is to assign a ``truth value'' to all propositions. 
+\begin{definition}[Valuation]
+A \textit{valuation} on $L$ is a function $v: L \to \{0,1\}$ such that:
+\begin{itemize}
+\item $v(\bot) = 0$
+\item $v(p \Rightarrow q) = \begin{cases} 0 & \text{if $v(p)=1$ and $v(q) = 0$} \\ 1 & \text{otherwise}\end{cases}$
+\end{itemize}
+\end{definition}
+We interpret $v(p)$ to be the ``truth value'' of the proposition $p$. The valuation function is uniquely determined by its values on the set of primitive propositions. 
+\begin{definition}[Tautology]
+A proposition $p$ is called a \textit{tautology}, written $\entails p$, if $v(p)=1$ for all valuations $v$. 
+\end{definition}
+The tautology of a proposition can be demonstrated by listing out all the possible valuations in a \textit{truth table}. Examples of tautologies include:
+\begin{enumerate}[i]
+\item $\entails p \Rightarrow (p \Rightarrow q)$ ``A true statement is implied by anything''
+\item $\entails (\neg \neg p) \Rightarrow p$ ``The law of double negation''
+\item $\entails \left[p \Rightarrow (q \Rightarrow r)\right] \Rightarrow \left[(p \Rightarrow q) \Rightarrow (p \Rightarrow r) \right]$ (not fun)
+\end{enumerate}
+
+Sometimes we want to know which statements are tautologies \textit{in the case that some set $S$ of formulas is assumed}. That is, that the set $S$ of propositions \textit{semantically entails} a proposition.
+
+\begin{definition}[Semantic Entailment]
+For $S \subset L$ and $t \in L$, we say $S$ \textit{entails} $t$, written $S \entails t$ if, for any $v$ such that $v(s)=1$ for all $s \in S$, we have $v(t)=1$. 
+\end{definition}
+\textbf{Example:} 
+$$\{p \Rightarrow q, q \Rightarrow r\} \entails p \Rightarrow r$$
+Note that while, in some sense, the expressions ``$p \Rightarrow q$'' and ``$\{p\} \entails q$'' both informally mean ``if $p$ then $q$'', they are claims about very different things (the latter is a meta-proposition, a claim about \textit{models}).  
+
+\begin{definition}[Truth and model]
+If $v(t)=1$, then we say $v$ is \textit{true} in $v$, or $v$ is a \textit{model} of $t$. For $S \subset L$, a valuation $v$ is a \textit{model} of $S$ if $v(s)=1$ for all $s \in S$.
+\end{definition}
+
+\subsection{Syntactic Implication}
+If semantic implication is intended to capture the notion of \textit{truth}, then syntactic implication is supposed to capture the notion of \textit{proof}. \\
+To prove things, we \textit{axioms} and \textit{deduction rules}. We adopt:
+\begin{enumerate}
+\item $p \Rightarrow (p \Rightarrow q)$
+\item $[p \Rightarrow (q \Rightarrow r)] \Rightarrow [(p \Rightarrow q) \Rightarrow (p \Rightarrow r)] $
+\item $(\neg \neg p) \Rightarrow p$
+\end{enumerate}
+as axioms, with the single deduction rule of \textit{modus ponens}: from the propositions $p$ and $p \Rightarrow q$, we may deduce $q$. These are a bit weird. I will play with my own some other time. 
+\begin{definition}[Proof and syntactic entailment]
+For any $S \subset L$, a \textit{proof} of $t$ from $S$ is a finite sequence $t_{1},\ldots,t_{n}$ of propositions, with $t_{n}=t$, such that each $t_{i}$ is one of the following:
+\begin{enumerate}[i]
+\item An axiom
+\item A member of $S$
+\item A proposition $t_{i}$ such that there exist $j,k<i$ such that $t_{j}$ is the proposition $t_{k} \Rightarrow t_{i}$
+\end{enumerate}
+\end{definition}
+If there is a proof of $t$ from $S$, we say that $S$ \textit{proves} or \textit{syntactically entails} $t$, written $S \proves t$. If $\emptyset \proves t$, we say $t$ is a theorem and write $\proves t$. We call $S$ \textit{hypotheses} or \textit{premises} and $t$ the \textit{conclusion}. 
+\textbf{Examples:}
+$$\{p \Rightarrow q,q \Rightarrow r\} \proves p \Rightarrow r$$
+$$\proves (p \Rightarrow p)$$ 
+\begin{proposition}[Deduction theorem]
+Let $S \subset L$ and $p,q \in L$. Then we have 
+$$S \proves (p \Rightarrow q) \quad \iff \quad S \cup \{p\} \proves q$$
+\end{proposition}
+\begin{proof}
+Suppose we have a proof of $p \Rightarrow q$ from $S$. Then trivially we can obtain the same proof from $S \cup \{p\}$, at which point we append $p$ to the beginning and $q$ to the end of the proof. Conversely, show that if $S \cup \{p\} \proves q$ by a proof $t_{1},\ldots,t_{n}$, then $S \proves (p \Rightarrow t_{i})$ for all $i$, in the cases that $t_{i}$ is:
+\begin{itemize}
+\item An axiom
+\item A member of $S$
+\item $p$ itself, or
+\item Obtained by Modus Ponens
+\end{itemize}
+\end{proof}
+This theorem has a ``converse''. Suppose we have a deduction system which admits modus ponens, and the deduction theorem holds in this system. Then axioms $(1)$ and $(2)$ defined ealier can be proved in the system. \textbf{Finally,} we get a not-shit proof that $\{p \Rightarrow q,q \Rightarrow r\} \proves p \Rightarrow r$: Simply assume $p$ and apply modus ponens twice. \\
+So we now have two notions of ``truthy-ness'', semantic entailment and syntactic entailment. We would like them to be the same. That is, we would like to prove:
+\begin{theorem}[Completeness]
+$S \proves t$ if and only if $S \entails t$. 
+\end{theorem}
+This is made up of two directions:
+\begin{itemize}
+\item Soundness: If $S \proves t$, then $S \entails t$. ``Proofs are true''
+\item Adequacy: If $S \entails t$, then $S \proves t$. ``Our axioms are strong enough to prove all true things''.
+\end{itemize}
+The first one is not too hard:
+\begin{proposition}[Soundness Theorem]
+If $S \proves t$, then $S \entails t$. 
+\end{proposition}
+\begin{proof}
+Check that all the rules in the definition of a proof are sound (i.e. if $t_{i}$ appears in a proof, then $v(t_{i})=1$). 
+\end{proof}
+Soundness always holds provided our axioms are tautologies. Adequacy seems much harder, because finding proofs of true statements is difficult. First we prove a special case.
+\begin{definition}[Consistent]
+$S$ is \textit{inconsistent} if $S \proves \bot$. $S$ is \textit{consistent}if it is not inconsistent.
+\end{definition}
+The `special case' we prove is the following:
+\begin{theorem}[Model existence theorem]
+If $S \entails \bot$, then $S \proves \bot$, i.e. if $S$ has no model, then $S$ is inconsistent. Equivalently, if $S$ is consistent, then $S$ has a model. Note to self: The formula $S \entails \bot$ looks odd, because this is defined to mean ``if $v$ is a valuation with $v(s)=1$ for all $s \in S$, then $v(\bot)=1$''. But then $v$ is not a valuation. So really it means ``There is no valuation such that $v(s)=1$ for all $s \in S$''.
+\end{theorem}
+\begin{proof}
+We called this a special case but it is actually the whole thing. If $S \entails t$, then $S \cup \{\neg t\} \entails \bot$. So $S \cup \{\neg t\}$ has no model (valuation), and hence is inconsistent by the theorem. So $S \cup \{\neg t\} \proves \bot$, and the deduction theorem tells us that $S \proves (\neg t \Rightarrow \bot) = \neg \neg t \proves t$. \\
+The idea of the proof is the following. We try to say ``let $v$ be a valuation which is $1$ if and only if $p \in S$''. But this will of course fail if $S$ can prove any statement it doesn't contain (because proofs preserve truth). In this case we say $S$ is not \textit{deductively close}. But it is easy to make $S$ deductively closed (by unioning up all of the legal proofs containing elements of $S$). However, what do we do about statements $S$ can neither prove nor disprove? (it could be very small after all). Well we have to just \textit{pick}, and the key is picking in such a way that it does not render $S$ inconsistent. 
+\begin{lemma}
+If $S \subset L$ is consistent, and $p \in L$, then at least one of $S \cup \{p\}$ and $S \cup \{\neg p\}$ is consistent. 
+\end{lemma} 
+\begin{proof}
+Suppose not. Then by the deduction theorem, $S \proves \neg p$ and $S \proves \neg \neg p \proves p$. But $\neg p = p \Rightarrow \bot$, so by modus ponens $S \proves \bot$. 
+\end{proof}
+The proof for arbitrary $L$ and $P$ requires Zorn's lemma, but for now we can handle the case where $L$ is countable easily enough. Write $L = \{t_{1},t_{2},\ldots\}$. \\
+Let $S_{0} = S$. Then at least one of $S \cup \{t_{1}\}$ and $S \cup \{\neg t_{1}\}$ is consistent. Pick one of them, and call it $S_{1}$. Do the same for all the $t_{i}$. \\
+Define $$\bar{S} = \bigcup_{i=1}^{\infty} S_{i}$$
+This set has the property that every proposition in $L$ is either in it or not in it. It automatically contains the deductive closure of $S$ (so that remark was only motivational). Suppose $\bar{S}$ were not consistent. Then because proofs are finite, we could choose some $S_{n}$ which contained the proof, and would therefore $\proves \bot$. $\bar{S}$ is deductively closed itself, because if $\bar{S} \proves p$ then $\neg p \notin \bar{S}$ (because that would make $\bar{S}$ inconsistent). Therefore $p \in \bar{S}$ (since at least one of them is in). Now define the valuation we wanted to define before, and show it is a valuation. 
+\end{proof}
+
+\section{Well-orderings and ordinals}
+A well ordering is a special type of total order where every non-empty subset has a least element. We can do induction and recursion on well-ordered sets (as in the case of the naturals). \\
+We are not interested in the orderings themselves, but in the ``lengths'' or \textit{order types} of the well-orders. These will be our ordinal numbers. \\
+There are operations defined on well orders, which allow us to obtain new ordinal numbers. \\
+\subsection{Well-orderings}
+\begin{definition}[(Strict) Total Order]
+A \textit{strict total order} or \textit{linear order} consists of a pair $(X,<)$, where $X$ is a set and $<$ is a relation on $S$ satisfying
+\begin{enumerate}[i]
+\item $ x \not{<} x$ for all $x$ (irreflexive)
+\item If $x<y$, $y<z$ then $x<z$ (transitive)
+\item $x<y$ or $x=y$ or $y<x$ (trichotomy)
+\end{enumerate}
+\end{definition}
+We have the shorthand $x \le y$ for ``$x<y$ or $x=y$'' and $x>y$ for $y<x$. \\
+\begin{definition}[Non-strict total ordering]
+\begin{enumerate}[i]
+\item $x \le x$ (reflexive) 
+\item $x \le y$, $y \le z$ implies $x \le z$ (transitive) 
+\item $x \le y$ and $y \le x$ implies $x=y$ (antisymmetric)
+\item $x \le y$ or $y \le x$ (trichotomy)
+\end{enumerate}
+\end{definition}
+
+\textbf{Examples}
+\begin{itemize}
+\item $\mathbb{N}, \mathbb{Q}, \mathbb{R}$ with the usual orderings are total.
+\item Divisibility relation on the integers ($x < y$ iff $x|y$ and $x \ne y$) is not trichotomous hence not a total order. 
+\item Inclusion ordering on $\mathcal{P}(S)$ (also not trichotomous).
+\end{itemize}
+We are particularly interested in \textit{well-orders}. 
+\begin{definition}[Well-Order]
+A total order $(X,<)$ is a \textit{well-ordering} if 
+$$\forall S \subset X, S \ne \emptyset \Rightarrow (\exists x \in S) (\forall y \in S) y \ge x$$\\
+(such an $x$ is called a \textit{least element}. 
+\end{definition}
+
+\textbf{Examples}
+\begin{itemize}
+\item $\mathbb{N}$ with the usual ordering
+\item $\mathbb{Z},\mathbb{Q},\mathbb{R}$ are not well-ordered in the usual ordering (the whole set is a counterexample)
+\item $\mathbb{Q}^{\ge 0}$ is not an example, as $\{x \in \mathbb{Q} | x >0 \} $has no least element.
+\item $\{1 - 1/n : n = 1,2,3,\ldots \}$ with the inherited order is well-ordered (it is isomorphic to $\mathbb{N}$). 
+\item $\{1 - 1/n : n = 1,2,3,\ldots \}\cup \{1\}$ is also well-ordered.
+\item $\{1 - 1/n : n = 1,2,3,\ldots \} \cup \{2-1/n : n=1,2,3,\ldots\}$ is a good example.
+\end{itemize}
+
+\begin{proposition} 
+	A total ordering is a well-ordering iff it has no infinite decreasing sequence.
+\end{proposition}
+\begin{proof}
+An infinite decreasing sequence has no least element. Conversely, given a set with no least element we negate the defintion:
+$$\forall x \in S, \exists y \in S y <x$$
+Therefore pick $x_{0}$ at random, set $x_{1}$ to be any element of $S$ $<x_{0}$, and so on. 
+\end{proof}
+
+\begin{definition}[Order Isomorphism]
+Two partial orderings $(X,<_{X})$, $(Y,<_{Y})$ are \textit{order isomorphic} if there is a bijection $f: X \to Y$ such that $x <y \Rightarrow f(x) < f(y)$. 
+\end{definition}
+I don't know why he said $\Rightarrow$ rather than $\iff$. So we claim
+\begin{lemma}
+The inverse of an order isomorphism is an order isomorphism.
+\end{lemma}
+\begin{proof}
+Suppose $f:X \to Y$ is an order isomorphism. Suppose $f(x)<f(y)$ but $x \ge y$. $f(x) < f(y)$ so $f(x) \ne f(y)$ so $x \ne y$ so $x>y$, or $y<x$. Then $f(y)<f(x)$. Contradiction.
+\end{proof}
+
+\textbf{Examples}
+\begin{itemize}
+\item $\mathbb{N}$ and $\{1-1/n,n = 1,2\}$ are isomorphic.
+\item $\{1-1/n\}\cup \{1\}$ is isomorphic to $\{1-1/n\}\cup \{2\}$.
+\item $\{1-1/n\}$ is not isomorphic to $\{1-1/n\} \cup \{1\}$, because the latter has a greatest element and the former does not.
+\end{itemize}
+
+Recall that on $\mathbb{N}$, well-ordering is equivalent to induction. An arbitrary well-ordered set does not know what ``$+1$'' means, so we instead say:
+\begin{proposition}[Induction]
+Let $X$ be a well-ordered set. Suppose $S \subset X$ has the property that for every $x$,
+$$\forall y,( y<x \Rightarrow y \in S) \Rightarrow x \in S $$.\\
+Then $S=X$. In particular, if property $P$ satisfies that $P(y) \text{ if } y<x \Rightarrow P(x)$, then $P$ holds for all $x \in X$. 
+\end{proposition}
+\begin{proof}
+If $X \ne S$, let $x$ be the least element of $X \setminus S$. By minimality, if $y \in X$ is such that $y < x$, then $y \notin X \setminus S$, i.e. $y \in S$. But then $\forall y < x, y \in S$. So $x \in S$. Contradiction.
+\end{proof}
+\begin{proposition}
+If $X,Y$ are isomorphic well-orderings, then there is only one isomorphism $f:X \to Y$. 
+\end{proposition}
+\begin{proof}
+Note that this theorem is not true for general total orderings. Note that $f$ muust send the least element of $X$ to the least element of $Y$. So let $f,g$ be two order isomorphisms $X \to Y$. If they agree on the set $S(x) = \{y \in X : y<x\}$, then they must agree at $x$, because the least element of $X \setminus S(x)$ is sent to the least element of $Y \setminus f(S(x))$. By order preserving, $$f(S(x)) = \{z \in Y : y < f(x)\}$$
+\end{proof}
+We have a notion (in the proof) of the `top' and `bottom' of a total ordering. 
+\begin{definition}
+If $(X,<)$ is a totally ordered set, and $Y \subset X$, then $X$ is an \textit{initial segment} if 
+$$x \in Y,y < x \Rightarrow y \in Y$$
+\end{definition}
+The set $S(x)$ in the proof has this property. There are other kinds of sets with this property, such as $\{x:x \le 3\}$ in $\mathbb{R}$ (approaching a point of equality through the order) and $\{x: x>0, x^{2} < 2\}$ in $\mathbb{Q}$ (approaching a non-element of the set). This cannot happen with a well-order:
+
+\begin{proposition}
+Every initial segment $Y$ of a well-ordered set $X$ is of the form $I_{x} = \{y \in X: y < x\}$. 
+\end{proposition}
+\begin{proof}
+Take the least element of $X \setminus Y$. It is bigger than everything in $Y$ (so $Y$ is contained in $I_{x}$), but $x$ is less than or equal to everything in $X \setminus Y$ - so if $y$ is less than $x$, it isn't in $X \setminus Y$ (so it's in $Y$). 
+\end{proof}
+The next nice property is that every subset $S \subset X$ of a well-ordered space $X$, $S$ is isomorphic to an initial segment. This fails very much for general total orders: no initial segment of $\mathbb{Z}$ is isomorphic to a finite set, and $\mathbb{Q}$ is not isomorphic to any initial segment of $\mathbb{R}$. \\
+
+We show this by recursively sending the smallest element of $S$ to the smallest element of $X$, and keep going. That's not necessarily going to work because a well-ordered set can have $\mathbb{N}$ inside it (as in $\{1-1.n\} \cup \{1\}$). We're going to define infinite recursion to fix it. \\
+\begin{definition}[Restriction of a function]
+For $f: A \to B$ and $C \subset A$, the \textit{restriction} of $f$ to $C$ is 
+$$f|_{C} = \{(x,f(x)) : x \in C\}$$
+\end{definition}
+We're going to treat functions as sets of ordered pairs for a little bit. 
+\begin{theorem}[Definition by recursion]
+Let $X$ be a well-ordered set and $Y$ any set. Then for every $G: \mathcal{P}(X \times Y) \to Y$ there exists a function $f:X \to Y$ such that 
+$$f(x) = G(f|_{I_{x}})$$
+for all $x$. 
+\end{theorem} 
+$G$ takes functions as arguments, and in particular it takes $f|_{I_{x}}$ to return the value $f(x)$. This is like how we say $f(n) = nf(n-1)$ in the definition of the factorial. 
+\begin{proof}
+It's tempting to begin by saying $f(0) = G(\emptyset)$ (where $0$ is the minimum element of $X$), $f(1) = G(f(0))$, and so on - but this doesn't avoid the case we were worried about before. \\
+We define ``$h$ is an attempt'' if
+\begin{center}
+$h:I \to Y$ for some initial segment $I$ of $X$, and $h(x) = G(h|_{I_{x}})$ for $x \in I$. 
+\end{center}
+Then we show that for any $x$, there is an attempt defined at $x$, and set $f(x)= h(x)$. But we must show this is well-defined. 
+
+
+\end{proof}
+
+
+
+
+
+\section{Predicate Logic}
+Predicate logic is more powerful than propositional logic. In predicate logic we analyse \textit{structures}, such as groups. The symbols ``$S \entails t$'' now mean ``for any structure in which $S$ is true, $t$ is true''. Structures come equipped with ``functions'' of various ``arities'' (the number of arguments they receive). In group theory, for instance, we have a multiplication $m$ (parity 2), and inversion $i$ (parity 1) and an identity constant (parity $e$). We can bind and quantify variables. 
+\subsection{Language of Predicate Logic}
+\begin{definition}[Language]
+Let $\Omega$(function symbols) and $\Pi$ (relation symbols) be disjoint sets, and $\alpha: \Omega \cup \Pi \to \mathbb{N}$ be a function (the `arity'). The language $L = L(\Omega,Pi,\alpha)$ is the set of formulae, defined as follows: 
+\begin{itemize}
+\item \textbf{Variables:} Some infinite family $x_{1},x_{2},\ldots$ (sometimes $x,y,z,\ldots$)
+\item \textbf{Terms:} Defined inductively by
+	\begin{enumerate}[i]
+	\item Every variable is a term
+	\item If $f \in \Omega$, $\alpha(f) = n$, and $t_{1},\ldots t_{n}$ are terms, then $ft_{1}\ldots t_{n}$ is a term, often written $f(t_{1},\ldots t_{n})$ instead. 
+	\end{enumerate}
+\item \textbf{Atomic Formulae:} These come in three kinds:
+	\begin{enumerate}[i]
+	\item $\bot$
+	\item $(s=t)$ for any terms $s,t$ 
+	\item $(\phi t_{1}\ldots t_{n})$ for any $\phi \in \Pi$ with $\alpha(\phi)=n$, and $t_{1},\ldots t_{n}$ terms
+	\end{enumerate}
+\item \textbf{Formulae:} Defined inductively by
+	\begin{enumerate}[i]
+	\item Atomic formulae are formulae
+	\item $(p \Rightarrow q)$ is a formula for any formulae $p,q$
+	\item $(\forall x) p$ is a formula for any formula $p$ and variable $x$. 
+	\end{enumerate}
+\end{itemize}
+\end{definition}
+For example, in the language of groups, we have $\Omega = \{m,i,e\}$, $\Pi = \emptyset$, $\alpha(m) = 2$, $\alpha(i) = 1$, $\alpha(e) = 0$. We have some terms, like $e,x_{1},m(x_{1},x_{2})$, $i(m(x_{1},x_{2})$, etc. \\
+In the language of posets, $\Omega = \emptyset$, while $\Pi = \{\le \}$, and $\alpha(\le) = 2$. So things like $x_{1} = x_{2}$, $x_{1} \le x_{2}$ (meaning $\le(x_{1},x_{2})$) are atomic formulae. \\
+The language only describes the \textit{syntactic} structure of the theory; it does not impose any relationship between the terms - for instance, $m(x,i(x)) \ne e$ a priori.
+\begin{definition}[Closed term]
+A term is \emph{closed} if it contains no variables.
+\end{definition} 
+\begin{definition}[Free and bound variables]
+An occurence of the variable $x$ is \textit{bound} if $x$ is in the scope of a $\forall x$ quantifier, and free otherwise.  
+\end{definition}
+\begin{definition}[Sentence]
+A \textit{sentence} is a formula with no free variables. 
+\end{definition}
+\begin{definition}[Substitution]
+IF $p$ is a formula, $x$ is a variable, and $t$ is a term, the $p[t/x]$ is obtained by replacing every free occurrence of $x$ by $t$. 
+\end{definition}
+
+\subsection{Semantic Entailment}
+We used to have valuations to determine semantic meaning. Now we have the notion of a \textit{structure}: you simply take a collection of objects which satisfy the language. 
+
+\begin{definition}[Structure]
+An $L$-structure is a non-empty set $A$ with a function $f_{A}:A^{n} \to A$ for each $f \in \Omega$ with $\alpha(f) = n$, and a relation $\phi \subset A^{n}$ for each $\phi \in \Pi$ with $\alpha(\phi) = n$. 
+\end{definition}
+
+Empty structures do not exist (don't be a fucking moron). Note that we still don't have axioms, so for example a group structure is simply a set $A$ with three functions $m_{A}: A^{2} \to A$, $i_{A} : A \to A$, $e_{A} \in A$. \\
+We now want to define the sentence ``$p$ holds in $A$'' for a formula $p$. Realistically, we just have to put subscripts on all the symbols, and only quantify over the set $A$. But this is a formal logic course. \\
+\begin{definition}[Interpretation]
+For a formula $p$ in $L$, its \textit{interpretation with respect to $A$} is a number $p_{A} \in \{0,1\}$ defined inductively. 
+\begin{enumerate}[i]
+\item Closed terms
+\item Atomic formulae
+\item Sentences
+\end{enumerate}
+\end{definition}
+We have only defined intepretations of sentences, but it is easy to give a meaningful interpretation of formulae with free variables. But I don't want to write it now. 
+
+\begin{definition}[Theory]
+A \textit{theory} is a set of sentences.
+\end{definition}
+\begin{definition}[Model]
+If a sentence $p$ has $p_{A}=1$, we say $p$ \textit{holds} in $A$, or $p$ is \textit{true} in $A$, or $A$ is a \textit{model} of $p$. For a theory $S$, a \textit{model} of $S$ is a structure that is a model for every $s \in S$. 
+\end{definition}
+\begin{definition}[Semantic entailment]
+For a theory $S$ and a sentence $t$, we say $S$ \textit{entails} $t$, written $S \entails t$, if every model of $S$ is a model of $t$. 
+\end{definition}
+\begin{definition}[Tautology]
+We say $t$ is a tautology if it holds in every model, i.e. $\emptyset \entails t$. 
+\end{definition}
+\textbf{Example.} $\forall x (x=x)$ is a tautology. 
+\begin{enumerate}[i]
+\item Groups
+\item Fields
+\item Posets
+\item Graphs
+\end{enumerate}
+
+Predicate logic is ``first order'', because quantifiers may only vary over elements of the structure. This makes it difficult (in fact impossible) to axiomatize, say, the real numbers (as a complete ordered field) since the least upper bound property is quantified over \textit{subsets} of $\mathbb{R}$. 
+
+\subsection{Syntactic Implication}
+We need axioms and rules of inference. There are 7 axioms in predicate logic: 3 for propositions, 2 to explain $=$, and 2 to explain $\forall$. 
+\begin{enumerate}
+\item $p \Rightarrow (q \Rightarrow p)$ for any formulae $p,q$. 
+\item $[p \Rightarrow (q \Rightarrow r)] \Rightarrow [(p \Rightarrow q) \Rightarrow (q \Rightarrow r)]$ for any $p,q,r$.
+\item $(\neg \neg p \Rightarrow p)$ for any $p$.
+\item $\forall x (x=x)$ for any variable $x$. 
+\item $(forall x) (\forall y) ((x=y) \Rightarrow (p \Rightarrow p[y/x]))$ for any variables $x,y$ and formula $p$, with $y$ not bound in $p$. 
+\item $[(\forall x) p] \Rightarrow p[t/x]$ for any formula $p$, variable $x$, term $t$ (with no free variable of $t$ occurring bound in $p$). 
+\item $[(\forall x) (p \Rightarrow q)] \Rightarrow [p \Rightarrow (\forall x)q]$ for any formulae $p,q$ such that $x$ is not free in $p$. 
+\end{enumerate}
+There are two deduction rules: 
+\begin{enumerate}
+\item Modus ponens: From $p,p \Rightarrow q$, deduce $q$.
+\item Generalisation: From $r$, we can deduce $(\forall x) r$, provided no premises of the proof have $x$ as a free variable.
+\end{enumerate}
+
+\begin{definition}[Proof]
+A \textit{proof of $p$ from $S$} is a sequence of statements, in which each statement is either an axiom, an element of $S$, or obtained by modus ponens or generalisation. 
+\end{definition}
+
+\begin{definition}[Syntactic Implication]
+If there exists a proof of a formula $p$ from a set of formulae in $S$, we write $S \proves p$ ``$S$ proves $p$''. 
+\end{definition}
+
+\begin{definition}[Theorem]
+If $S \proves p$, we say $p$ is a theorem of $S$ (e.g. a theorem of group theory). 
+\end{definition}
+(these are the same definitions from propositional logic). 
+
+\setcounter{section}{7}
+\section{Proof Theory and Constructive Logic}
+\subsection{Natural Deduction}
+Viewing mathematical proof as an `object' is quite recent, and probably began with G\"odel. Being that it was new, his notion of proof was unintuitive. This is a more natural way of writing them. We will have more rules of inference to represent the different kinds of deductions we might make.\\
+Our rules have the following form:\\
+\begin{prooftree}
+\AxiomC{$A$}
+\AxiomC{$B$}
+\RightLabel{$\wedge$-int}
+\BinaryInfC{$A \wedge B$}
+\end{prooftree}
+The things above the line are called \textit{premises}, and the thing below the line is the \textit{conclusion} or \textit{sequent}. There are others:
+\begin{prooftree}
+\AxiomC{$A$}
+\RightLabel{$\vee$-int}
+\UnaryInfC{$A\vee B$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$B$}
+\RightLabel{$\vee$-int}
+\UnaryInfC{$A \vee B$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$A \wedge B$}
+\RightLabel{$\wedge$-elim}
+\UnaryInfC{$A$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$A$}
+\AxiomC{$A \to B$}
+\RightLabel{$\to$-elim}
+\BinaryInfC{$B$} 
+\end{prooftree}
+
+Our rules fall into two categories: \textit{introduction rules} (which tell us how to introduce logical symbols) and \textit{elimination rules} (which tell us how to remove them). They are like LEGO pieces.\\
+\textbf{Example.} We might have a proof tree which looks like:
+We don't yet know how to introduce $\to$ or eliminate $\vee$. \\
+\begin{prooftree}
+\AxiomC{$A$}
+\RightLabel{$\vee$-int}
+\UnaryInfC{$A \vee B$}
+\AxiomC{$A \vee B \to C$}
+\RightLabel{$\to$-elim}
+\BinaryInfC{$C$}
+\end{prooftree}
+which says that we can prove $C$ from $A$ and $A\vee B \to C$. \\
+How do we prove $A \to B$? Well, we assume $A$, and prove $B$. This idea cannot be expressed in the same way as our other proof trees. \\
+The rule is this: Given a derivation of $C$ from $A$,
+\begin{prooftree}
+\AxiomC{$A$}
+\noLine
+\UnaryInfC{$\vdots$}
+\noLine
+\UnaryInfC{$C$}
+\end{prooftree}
+the $\to$-introduction rule says we put brackets around the occurence of $A$ (perhaps with an indicator to say which assumption it is), as $[A]^{1}$, and deduce the conclusion $A \to C$.
+\begin{prooftree}
+\AxiomC{$[A]^{1}$}
+\noLine
+\UnaryInfC{$\vdots$}
+\noLine
+\UnaryInfC{$C$}
+\RightLabel{$\to$-int}
+\UnaryInfC{$A \to C$}
+\end{prooftree}
+\textbf{Example.}The previous example can be modified into
+
+\begin{prooftree}
+\AxiomC{$[A]^{1}$}
+\RightLabel{$\vee$-int}
+\UnaryInfC{$A \vee B$}
+\AxiomC{$A \vee B \to C$}
+\RightLabel{$\to$-elim}
+\BinaryInfC{$C$}
+\RightLabel{$\to$-int(1)}
+\UnaryInfC{$A \to C$}
+\end{prooftree}
+which says that we can prove $C$ from \textit{assuming} $A$. \\
+Now we need an elimination rule for $\vee$. The idea is \textit{proof by cases}: If we know $A \vee B$, and we show $A \to C$ and $B \to C$, then we can safely deduce $C$. Written directly in terms of assumptions:
+\begin{prooftree}
+\AxiomC{$A \vee B$}
+\AxiomC{$[A]$}
+\noLine
+\UnaryInfC{$\vdots$}
+\noLine
+\UnaryInfC{$C$}
+\AxiomC{$[B]$}
+\noLine
+\UnaryInfC{$\vdots$}
+\noLine
+\UnaryInfC{$C$}
+\RightLabel{$\vee$-elim}
+\TrinaryInfC{$C$}
+\end{prooftree}
+How do we handle $\bot$? Well anything can be deduced from $\bot$: \textit{ex falso sequitur quolibet}. Now we introduce $\neg A$ as $A \to \bot$. \\
+The logic constructed so far is called \textit{constructive propositional logic}. We cannot yet prove the \textit{law of the excluded middle}, $A\vee \neg A$, or the \textit{law of double negation}, $\neg\neg A \to A$. \\
+to get to \textit{classical propositional logic}, we add another block:
+\begin{prooftree}
+\AxiomC{$[A \to \bot]$}
+\noLine
+\UnaryInfC{$\vdots$}
+\noLine
+\UnaryInfC{$\bot$}
+\UnaryInfC{$A$}
+\end{prooftree}
+
+As seen earlier, any truth-table-tautology is provable using classical propositional logic. \\
+\textbf{Example.} Let's try to prove
+$$A \to (B \to C) \to ((A \to B) \to (A \to C)).$$
+Well, we need a $\to$ introduction on the top level:
+\begin{prooftree}
+\AxiomC{$[A \to (B \to C)]$}
+\noLine
+\UnaryInfC{$\vdots$}
+\noLine
+\UnaryInfC{$(A \to B) \to (A \to C)$}
+\UnaryInfC{$A \to (B \to C) \to ((A \to B) \to (A \to C))$}
+\end{prooftree}
+But the only way to get that implication above the dividing line is to say
+\begin{prooftree}
+\AxiomC{$A \to B$}
+\AxiomC{$[A]$}
+\noLine
+\BinaryInfC{$\vdots$}
+\noLine
+\UnaryInfC{$C$}
+\UnaryInfC{$A \to C$}
+\end{prooftree}
+This can then be used to construct a proof but I can't see it right now.\\
+\textbf{Example.} Suppose we want to prove $A \to (B \to A)$. So assume $A$, assume $B$, deduce $A$ (from the prior assumption) and conclude:
+\begin{prooftree}
+\AxiomC{$[A]^{1}$}
+\AxiomC{$[B]^{2}$}
+\BinaryInfC{$A$}
+\RightLabel{$\to$-int (2)}
+\UnaryInfC{$B \to A$}
+\RightLabel{$\to$-int (1)}
+\UnaryInfC{$A \to (B \to A)$}
+\end{prooftree}
+
+The first step could be proved by $\wedge$ introduction, so instead we introduce the shortcut `weakening rule' (proof \textit{a fortiori}), namely that we can ignore any of our assumptions whenever we like. \\
+
+There are some exercises.\\
+
+Apparently we think of natural deduction as a ``platform'' for expressing logical theories, rather than a logical theory by itself. \\
+\textbf{Example.} We might like to describe first-order logic. We have an introduction rule for $\exists$ given by:
+\begin{prooftree}
+\AxiomC{$\varphi(t)$}
+\RightLabel{$\exists$-int}
+\UnaryInfC{$\exists x.\varphi(x)$}
+\end{prooftree}
+and an elimination rule for $\forall$ given by:
+\begin{prooftree}
+\AxiomC{$\forall x.\varphi(x)$}
+\RightLabel{$\forall$-elim}
+\UnaryInfC{$\varphi(t)$}
+\end{prooftree}
+The introduction rule looks like:
+\begin{prooftree}
+\AxiomC{$\varphi$}
+\RightLabel{$\forall$-int}
+\UnaryInfC{$\forall x.\varphi(x)$}
+\end{prooftree}
+where we insist that $x$ does not occur as a free variable of $\varphi$. \\
+Finally, to eliminate $\exists$ we need a proof that depends on $\varphi(x)$:
+\begin{prooftree}
+\AxiomC{$\exists x.\varphi(x)$}
+\AxiomC{$\varphi(x)$}
+\noLine
+\UnaryInfC{$\vdots$}
+\noLine
+\UnaryInfC{$p$}
+\RightLabel{$\exists$-elim}
+\BinaryInfC{$p$}
+\end{prooftree}
+where now we assume $p$ is independent of $x$. \\
+\textbf{Example.} We can even encode ``naive set theory'' in natural deduction, in the following way: A connective $\in$ is defined by:
+\begin{prooftree}
+\AxiomC{$\varphi(x)$}
+\RightLabel{$\in$-int}
+\UnaryInfC{$x \in \{y : \varphi(y)\}$}
+\end{prooftree}
+and 
+\begin{prooftree}
+\AxiomC{$x \in \{y:\varphi(y)\}$}
+\RightLabel{$\in$-elim}
+\UnaryInfC{$\varphi(x)$}
+\end{prooftree}
+This theory will turn out to be inconsistent. \\
+We can't write down whatever introduction and elimination rules we like. For example, if we introduce a stupid symbol $\&$ such that:\\
+
+\begin{align*}
+ 		&\AxiomC{$A$}
+ 		\RightLabel{$\&$-int}
+ 		\UnaryInfC{$A \& B$}
+ 		\DisplayProof& 
+		&\AxiomC{$A \& B$}
+		\RightLabel{$\&$-elim}
+		\UnaryInfC{$B$}
+		\DisplayProof&\\
+\end{align*}
+There are two problems with this example: one is that we cannot recover anything about $A$ from $A \& B$. The next problem is that while proving $A \& B$ involved nothing about $B$, we were still able to deduce $B$ anyway. In general, for a sensible theory we would like $\&$ to be \textit{harmonious}.
+
+\begin{definition}[Harmonious connective]
+The rules for introducing and eliminating a connective \$ are said to be \textit{harmonious} if $\phi \$ \psi$ is the strongest assertion you can deduce from the assumptions in the rule of $\$$-introduction, and $\phi \$ \psi$ is the weakest thing that implies the conclusion of the $\$$-elimination rule. 
+\end{definition}
+We won't quantify exactly what we mean by `strength'. 
+
+\textbf{Example.} The rules for $\in$ are harmonious, because the premise and conclusion are equivalent in both cases. \\
+\textbf{Example} (Russell's paradox). Let 
+$$R = \{x : x \in x \to \bot\}$$\\
+Then we have deductions
+\begin{prooftree}
+\AxiomC{$R \in R$}
+\AxiomC{$R \in R$}
+\RightLabel{$\in$-elim}
+\UnaryInfC{$R \in R \to \bot$}
+\RightLabel{$\to$-elim}
+\BinaryInfC{$\bot$}
+\end{prooftree}
+which allows us to show $R \in R$:
+\begin{prooftree}
+\AxiomC{$[R \in R]^{1}$} 
+\AxiomC{$[R \in R]^{1}$} 
+\RightLabel{$\in$-elim}
+\UnaryInfC{$R \in R \to \bot$}
+\BinaryInfC{$\bot$}
+\UnaryInfC{$R \in R \to \bot$}
+\UnaryInfC{$R \in R$}
+\end{prooftree}
+but we showed $R \in R \to \bot = \neg(R \in R)$ just before it (contradiction). 
+
+\end{document}
