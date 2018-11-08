@@ -1,4 +1,5 @@
 class Proposition 
+  attr_accessor :args
   def initialize(args)
     @args = args
   end
@@ -12,7 +13,7 @@ class Proposition
   end
 
   def implies(arg)
-    PropositionImplies([self,arg])
+    PropositionImplies.new([self,arg])
   end
 
   def substitute(q,r)
@@ -66,6 +67,56 @@ class PropositionImplies < Proposition
   def print
     "(#{@args.map(&:print).join(" \\implies ")})"
   end
+
+  def pre
+    args[0]
+  end
+
+  def post
+    args[1]
+  end
+end
+
+class Proof
+  attr_accessor :hypotheses
+  alias_method :hyps, :hypotheses
+ 
+  def initialize(hyps)
+    @hypotheses = hyps
+  end
+
+  def expand_hypotheses
+    hyps = hypotheses
+    hyps.each do |prop|
+      if (prop.class == PropositionImplies) && hyps.include?(prop.pre)
+        hyps << prop.post unless hyps.include?(prop.post)
+      end
+    end
+    proof(hyps)
+  end
+
+  def obviously_entails(conclusion)
+    p self
+    puts self.print
+    if hypotheses.include? conclusion 
+      return true
+    end
+  end
+
+  def entails(conclusion,steps=[])
+    if obviously_entails?(conclusion)
+      return steps
+    else
+      expanded = expand_hypotheses
+      steps << expanded 
+      entails(conclusion,steps)
+    end
+  end
+
+  def print 
+    p self
+    hypotheses.map(&:print).join(', ')
+  end
 end
 
 def and(*args)
@@ -88,5 +139,15 @@ def atom(name)
   PropositionAtomic.new(name)
 end
 
+def proof(*hyps)
+  Proof.new(hyps)
+end
+
+class ProofState
+  attr_accessor :hypotheses, :goals
+
+  
+  
 
 
+end
