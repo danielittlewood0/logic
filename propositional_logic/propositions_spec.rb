@@ -21,13 +21,20 @@ describe Proposition do
     end
   end
 
-  describe '#entails' do
+  describe '#obviously_entails, #entails' do
     it 'checks if hypotheses entail by modus ponens' do 
       a = atom('a')
       b = atom('b')
       a_b = a.implies(b)
       expect(proof(a,a_b).obviously_entails(b)).to eq nil
       expect(proof(a,a_b).expand_hypotheses.obviously_entails(b)).to eq true
+    end
+
+    it 'chains applications of modus ponens' do 
+      a = atom('a')
+      b = atom('b')
+      a_b = a.implies(b)
+      expect(proof(a,a_b).entails(b)).to eq true
     end
 
     it 'checks if hypotheses entail by modus ponens' do 
@@ -37,7 +44,7 @@ describe Proposition do
       a_b = a.implies(b)
       b_c = b.implies(c)
       a_c = a.implies(c)
-      expect(proof(a_b,b_c).obviously_entails(a_c)).to eq true
+      expect(proof(a_b,b_c).entails(a_c)).to eq true
     end
   end
 
