@@ -40,4 +40,15 @@ describe Proposition do
       expect(proof(a_b,b_c).obviously_entails(a_c)).to eq true
     end
   end
+
+  describe "Proof" do 
+    describe "#==" do 
+      it "two proofs are == when all their hyps are ==" do
+        a = atom('a')
+        b = atom('b')
+        a_b = a.implies(b)
+        expect(proof(a,a_b).expand_hypotheses == proof(a,a_b,b)).to eq true
+      end
+    end
+  end
 end

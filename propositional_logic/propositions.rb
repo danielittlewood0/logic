@@ -85,6 +85,10 @@ class Proof
     @hypotheses = hyps
   end
 
+  def ==(proof_2)
+    self.hyps == proof_2.hyps
+  end
+
   def expand_hypotheses
     hyps = hypotheses
     hyps.each do |prop|
@@ -92,12 +96,10 @@ class Proof
         hyps << prop.post unless hyps.include?(prop.post)
       end
     end
-    proof(hyps)
+    proof(*hyps)
   end
 
   def obviously_entails(conclusion)
-    p self
-    puts self.print
     if hypotheses.include? conclusion 
       return true
     end
@@ -114,7 +116,6 @@ class Proof
   end
 
   def print 
-    p self
     hypotheses.map(&:print).join(', ')
   end
 end
