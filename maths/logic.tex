@@ -17,109 +17,200 @@
 
 
 \begin{document}
-\section{Propositional Calculus}
-A \textit{proposition} is any logical statement, really. In contrast to \textit{predicates}, a proposition contains no variables, and hence there can be nothing to quantify over. Examples include ``Socrates is a man'' or ``Plato is a man''. Notice that these two propositions are formally unrelated (so the semantics of propositional logic is weak in this sense) - whereas in predicate logic we may consider these two instances of a predicate: ``man(Socrates)'' or ``man(Plato)''. If $p$ and $q$ are propositions, then $p$ and $q$ are also propositions. We would like to know in what sense, say ``$p \Rightarrow p$'' is a true proposition. 
-\subsection{Propositions}
-Let $P$ be a set of \textit{primitive propositions}. These are semantically meaningless. We might interpret them as being ``true'' or ``false'', but that is our business. The set of propositions derived from $P$, denoted by $L(P)$, is defined recursively by:
+\section{Propositional Calculus} 
+% Propositions vs. Predicates
+A \textit{proposition} is any logical statement, really. In contrast to 
+\textit{predicates}, a proposition contains no variables, and hence there can 
+be nothing to quantify over. Examples include ``Socrates is a man'' or 
+``Plato is a man''. Notice that these two propositions are formally unrelated 
+(so the semantics of propositional logic is weak in this sense) - whereas in 
+predicate logic we may consider these two instances of a predicate: 
+``man(Socrates)'' or ``man(Plato)''. If $p$ and $q$ are propositions, then 
+$p$ and $q$ are also propositions. We would like to know in what sense, say 
+``$p \Rightarrow p$'' is a true proposition. 
+
+\subsection{Propositions} 
+% Inductive definition of propositions
+Let $P$ be a set of \textit{primitive propositions}. These are semantically 
+meaningless. We might interpret them as being ``true'' or ``false'', but that 
+is our business. The set of propositions derived from $P$, denoted by $L(P)$, 
+is defined recursively by:
+
 \begin{itemize}
 \item If $p \in P$, then $p \in L(P)$ 
 \item $\bot \in L(P)$, where ``$\bot$'' is interpreted as ``false''
 \item If $p,q \in L$ then $(p \Rightarrow q) \in L(P)$
 \end{itemize}
-\textbf{Example.} If our set of primitives is $\{p,q,r\}$, then $p \Rightarrow q$, $p \Rightarrow \bot$, $((p \Rightarrow q) \Rightarrow (p \Rightarrow r))$ are propositions. $L$ can be formally defined as a union of set ``of depth $n$'' in the recursion. \\
+
+\textbf{Example.} If our set of primitives is $\{p,q,r\}$, then 
+$p \Rightarrow q$, $p \Rightarrow \bot$, 
+$((p \Rightarrow q) \Rightarrow (p \Rightarrow r))$ are propositions. 
+$L$ can be formally defined as a union of sets ``of depth $n$'' in the 
+recursion. 
+
 These formulas can be viewed as elements of a context free grammar, as follows:
 \begin{align*}
-P \Rightarrow p \\
-P \Rightarrow (Q \Rightarrow R)
+X \mapsto p \\
+X \mapsto (Y \Rightarrow Z)
 \end{align*}
-where $P,Q,R$ are non-terminal symbols, and $p$ is an arbitrary terminal symbol, the collection of which is $\{\bot\} \cup P$. 
+where $X,Y,Z$ are non-terminal symbols, and $p$ is an arbitrary terminal symbol, the 
+collection of which is $\{\bot\} \cup P$. 
+
 \begin{definition}[Logical symbol]
-\hspace{1pt}\\[5pt]
+
 \emph{
 \begin{tabular}{cccc}
 $\neg p$ & ``not $p$'' & is an abbreviation for & $(p \Rightarrow \bot)$ \\
-$p \wedge q$& ``$p$ and $q$'' & is an abbreviation for & $\neg(p \Rightarrow (\neg q))$ \\
-$p \vee q$ & ``$p$ or $q$'' & is an abbreviation for & $(\neg p) \Rightarrow q$ \\
+$p \land q$& ``$p$ and $q$'' & is an abbreviation for & $\neg(p \Rightarrow (\neg q))$ \\
+$p \lor q$ & ``$p$ or $q$'' & is an abbreviation for & $(\neg p) \Rightarrow q$ 
 \end{tabular}}
 \end{definition}
-Nerds try to express everything in terms of implies because it makes proofs more convenient. But do not do this in a real implementation.
+
 \subsection{Semantic Entailment}
-The idea of semantic entailment is to assign a ``truth value'' to all propositions. 
+  The idea of semantic entailment is to assign a ``truth value'' to all 
+propositions. 
+
 \begin{definition}[Valuation]
 A \textit{valuation} on $L$ is a function $v: L \to \{0,1\}$ such that:
 \begin{itemize}
 \item $v(\bot) = 0$
-\item $v(p \Rightarrow q) = \begin{cases} 0 & \text{if $v(p)=1$ and $v(q) = 0$} \\ 1 & \text{otherwise}\end{cases}$
+\item $v(p \Rightarrow q) = 
+  \begin{cases} 
+    0 & \text{if $v(p)=1$ and $v(q) = 0$} \\ 
+    1 & \text{otherwise}
+  \end{cases}$
 \end{itemize}
 \end{definition}
-We interpret $v(p)$ to be the ``truth value'' of the proposition $p$. The valuation function is uniquely determined by its values on the set of primitive propositions. 
+
+  We interpret $v(p)$ to be the ``truth value'' of the proposition $p$. The 
+valuation function is uniquely determined by its values on the set of 
+primitive propositions. 
+
 \begin{definition}[Tautology]
-A proposition $p$ is called a \textit{tautology}, written $\entails p$, if $v(p)=1$ for all valuations $v$. 
+    A proposition $p$ is called a \textit{tautology}, written $\entails p$, if 
+  $v(p)=1$ for all valuations $v$. 
 \end{definition}
-The tautology of a proposition can be demonstrated by listing out all the possible valuations in a \textit{truth table}. Examples of tautologies include:
+
+  The tautology of a proposition can be demonstrated by listing out all the 
+possible valuations in a \textit{truth table}. Examples of tautologies include:
+
 \begin{enumerate}[i]
-\item $\entails p \Rightarrow (p \Rightarrow q)$ ``A true statement is implied by anything''
-\item $\entails (\neg \neg p) \Rightarrow p$ ``The law of double negation''
-\item $\entails \left[p \Rightarrow (q \Rightarrow r)\right] \Rightarrow \left[(p \Rightarrow q) \Rightarrow (p \Rightarrow r) \right]$ (not fun)
+  \item $\entails p \Rightarrow (p \Rightarrow q)$ ``A true statement is implied by anything''
+  \item $\entails (\neg \neg p) \Rightarrow p$ ``The law of double negation''
+  \item $\entails \left[p \Rightarrow (q \Rightarrow r)\right] \Rightarrow \left[(p \Rightarrow q) \Rightarrow (p \Rightarrow r) \right]$ 
+    (not fun)
 \end{enumerate}
 
-Sometimes we want to know which statements are tautologies \textit{in the case that some set $S$ of formulas is assumed}. That is, that the set $S$ of propositions \textit{semantically entails} a proposition.
+  Sometimes we want to know which statements are tautologies \textit{in the case 
+that some set $S$ of formulas is assumed}. That is, that the set $S$ of 
+propositions \textit{semantically entails} a proposition.
 
 \begin{definition}[Semantic Entailment]
-For $S \subset L$ and $t \in L$, we say $S$ \textit{entails} $t$, written $S \entails t$ if, for any $v$ such that $v(s)=1$ for all $s \in S$, we have $v(t)=1$. 
+    For $S \subset L$ and $t \in L$, we say $S$ \textit{entails} $t$, written 
+  $S \entails t$ if, for any $v$ such that $v(s)=1$ for all $s \in S$, we have 
+  $v(t)=1$. 
 \end{definition}
+
 \textbf{Example:} 
 $$\{p \Rightarrow q, q \Rightarrow r\} \entails p \Rightarrow r$$
-Note that while, in some sense, the expressions ``$p \Rightarrow q$'' and ``$\{p\} \entails q$'' both informally mean ``if $p$ then $q$'', they are claims about very different things (the latter is a meta-proposition, a claim about \textit{models}).  
+
+Note that while, in some sense, the expressions ``$p \Rightarrow q$'' and 
+``$\{p\} \entails q$'' both informally mean ``if $p$ then $q$'', they are 
+claims about very different things (the latter is a meta-proposition, a 
+claim about \textit{models}).  
 
 \begin{definition}[Truth and model]
-If $v(t)=1$, then we say $v$ is \textit{true} in $v$, or $v$ is a \textit{model} of $t$. For $S \subset L$, a valuation $v$ is a \textit{model} of $S$ if $v(s)=1$ for all $s \in S$.
+If $v(t)=1$, then we say $v$ is \textit{true} in $v$, or 
+  $v$ is a \textit{model} of $t$. For $S \subset L$, 
+  a valuation $v$ is a \textit{model} of $S$ if $v(s)=1$ for all $s \in S$.
 \end{definition}
 
 \subsection{Syntactic Implication}
-If semantic implication is intended to capture the notion of \textit{truth}, then syntactic implication is supposed to capture the notion of \textit{proof}. \\
-To prove things, we \textit{axioms} and \textit{deduction rules}. We adopt:
-\begin{enumerate}
-\item $p \Rightarrow (p \Rightarrow q)$
+
+If semantic implication is intended to capture the notion of \textit{truth}, 
+then syntactic implication is supposed to capture the notion of \textit{proof}.
+
+To prove things, we need \textit{axioms} and \textit{deduction rules}. 
+
+We adopt:
+\begin{enumerate} % Axioms
+\item $q \Rightarrow (p \Rightarrow q)$
 \item $[p \Rightarrow (q \Rightarrow r)] \Rightarrow [(p \Rightarrow q) \Rightarrow (p \Rightarrow r)] $
 \item $(\neg \neg p) \Rightarrow p$
 \end{enumerate}
-as axioms, with the single deduction rule of \textit{modus ponens}: from the propositions $p$ and $p \Rightarrow q$, we may deduce $q$. These are a bit weird. I will play with my own some other time. 
+% 
+as axioms, with the single deduction rule of \textit{modus ponens}: 
+from the propositions $p$ and $p \Rightarrow q$, we may deduce $q$. 
+
 \begin{definition}[Proof and syntactic entailment]
-For any $S \subset L$, a \textit{proof} of $t$ from $S$ is a finite sequence $t_{1},\ldots,t_{n}$ of propositions, with $t_{n}=t$, such that each $t_{i}$ is one of the following:
+For any $S \subset L$, a \textit{proof} of $t$ from $S$ is a finite sequence 
+  $t_{1},\ldots,t_{n}$ of propositions, with $t_{n}=t$, such that each $t_{i}$ 
+  is one of the following:
+
 \begin{enumerate}[i]
-\item An axiom
-\item A member of $S$
-\item A proposition $t_{i}$ such that there exist $j,k<i$ such that $t_{j}$ is the proposition $t_{k} \Rightarrow t_{i}$
+  \item An axiom
+  \item A member of $S$
+  \item A proposition $t_{i}$ such that there exist $j,k<i$ such that $t_{j}$ 
+    is the proposition $t_{k} \Rightarrow t_{i}$
 \end{enumerate}
+
 \end{definition}
-If there is a proof of $t$ from $S$, we say that $S$ \textit{proves} or \textit{syntactically entails} $t$, written $S \proves t$. If $\emptyset \proves t$, we say $t$ is a theorem and write $\proves t$. We call $S$ \textit{hypotheses} or \textit{premises} and $t$ the \textit{conclusion}. 
+If there is a proof of $t$ from $S$, we say that $S$ \textit{proves} or 
+\textit{syntactically entails} $t$, written $S \proves t$. 
+If $\emptyset \proves t$, we say $t$ is a theorem and write $\proves t$. 
+We call $S$ \textit{hypotheses} or \textit{premises} and $t$ the \textit{conclusion}. 
+
 \textbf{Examples:}
 $$\{p \Rightarrow q,q \Rightarrow r\} \proves p \Rightarrow r$$
 $$\proves (p \Rightarrow p)$$ 
+
 \begin{proposition}[Deduction theorem]
 Let $S \subset L$ and $p,q \in L$. Then we have 
-$$S \proves (p \Rightarrow q) \quad \iff \quad S \cup \{p\} \proves q$$
+  $$S \proves (p \Rightarrow q) \quad \iff \quad S \cup \{p\} \proves q$$
 \end{proposition}
+
 \begin{proof}
-Suppose we have a proof of $p \Rightarrow q$ from $S$. Then trivially we can obtain the same proof from $S \cup \{p\}$, at which point we append $p$ to the beginning and $q$ to the end of the proof. Conversely, show that if $S \cup \{p\} \proves q$ by a proof $t_{1},\ldots,t_{n}$, then $S \proves (p \Rightarrow t_{i})$ for all $i$, in the cases that $t_{i}$ is:
+Suppose we have a proof of $p \Rightarrow q$ from $S$. Then trivially we can 
+  obtain the same proof from $S \cup \{p\}$, at which point we append $p$ to 
+  the beginning and $q$ to the end of the proof. 
+  
+Conversely, show that if $S \cup \{p\} \proves q$ by a proof $t_{1},\ldots,t_{n}$, 
+  then $S \proves (p \Rightarrow t_{i})$ for all $i$, in the cases that $t_{i}$ is:
 \begin{itemize}
-\item An axiom
-\item A member of $S$
-\item $p$ itself, or
-\item Obtained by Modus Ponens
+    % Let i <= n and suppose j < n implies S |= (p => t_{j})
+  \item An axiom  % |= t_{i} |= (p => t_{i})
+  \item A member of $S$ % S |= t_{i} |= (p => t_{i})
+  \item $p$ itself, or % |= p => p 
+  \item Obtained by Modus Ponens % S u {p} |= t_{j} & t_{j} => t_{i}
+    % So by induction S |= (p => t_{j}) & p => (t_{j} => t_{i})
+    % Applying axiom 3, |= (p => (t_{j} => t_{i})) => (p => t_{j}) => (p => t_{i})
+    % These three together prove p => t_{i}
 \end{itemize}
 \end{proof}
-This theorem has a ``converse''. Suppose we have a deduction system which admits modus ponens, and the deduction theorem holds in this system. Then axioms $(1)$ and $(2)$ defined ealier can be proved in the system. \textbf{Finally,} we get a not-shit proof that $\{p \Rightarrow q,q \Rightarrow r\} \proves p \Rightarrow r$: Simply assume $p$ and apply modus ponens twice. \\
-So we now have two notions of ``truthy-ness'', semantic entailment and syntactic entailment. We would like them to be the same. That is, we would like to prove:
+
+  This theorem has a ``converse''.  Suppose we have a deduction system which 
+admits modus ponens, and the deduction theorem holds in this system. Then 
+axioms $(1)$ and $(2)$ defined ealier can be proved in the system. 
+\textbf{Finally,} we get a natural proof that 
+$\{p \Rightarrow q,q \Rightarrow r\} \proves p \Rightarrow r$: 
+Simply assume $p$ and apply modus ponens twice. 
+
+So we now have two notions of ``truthy-ness'', semantic entailment and 
+syntactic entailment. We would like them to be the same. That is, we would 
+like to prove:
+
 \begin{theorem}[Completeness]
 $S \proves t$ if and only if $S \entails t$. 
 \end{theorem}
+
 This is made up of two directions:
 \begin{itemize}
-\item Soundness: If $S \proves t$, then $S \entails t$. ``Proofs are true''
-\item Adequacy: If $S \entails t$, then $S \proves t$. ``Our axioms are strong enough to prove all true things''.
+  \item \textbf{Soundness}: If $S \proves t$, then $S \entails t$. 
+    ``Proofs are true''
+  \item \textbf{Adequacy}: If $S \entails t$, then $S \proves t$. 
+    ``Our axioms are strong enough to prove all true things''.
 \end{itemize}
+
 The first one is not too hard:
 \begin{proposition}[Soundness Theorem]
 If $S \proves t$, then $S \entails t$. 
@@ -149,6 +240,7 @@ Let $S_{0} = S$. Then at least one of $S \cup \{t_{1}\}$ and $S \cup \{\neg t_{1
 Define $$\bar{S} = \bigcup_{i=1}^{\infty} S_{i}$$
 This set has the property that every proposition in $L$ is either in it or not in it. It automatically contains the deductive closure of $S$ (so that remark was only motivational). Suppose $\bar{S}$ were not consistent. Then because proofs are finite, we could choose some $S_{n}$ which contained the proof, and would therefore $\proves \bot$. $\bar{S}$ is deductively closed itself, because if $\bar{S} \proves p$ then $\neg p \notin \bar{S}$ (because that would make $\bar{S}$ inconsistent). Therefore $p \in \bar{S}$ (since at least one of them is in). Now define the valuation we wanted to define before, and show it is a valuation. 
 \end{proof}
+
 
 \section{Well-orderings and ordinals}
 A well ordering is a special type of total order where every non-empty subset has a least element. We can do induction and recursion on well-ordered sets (as in the case of the naturals). \\
