@@ -1,5 +1,5 @@
-\documentclass{article}
 \usepackage{amsmath}
+\documentclass{article}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{enumerate}
@@ -61,7 +61,8 @@ collection of which is $\{\bot\} \cup P$.
 \emph{
 \begin{tabular}{cccc}
 $\neg p$ & ``not $p$'' & is an abbreviation for & $(p \Rightarrow \bot)$ \\
-$p \land q$& ``$p$ and $q$'' & is an abbreviation for & $\neg(p \Rightarrow (\neg q))$ \\
+$p \land q$& ``$p$ and $q$'' &
+    is an abbreviation for & $\neg(p \Rightarrow (\neg q))$ \\
 $p \lor q$ & ``$p$ or $q$'' & is an abbreviation for & $(\neg p) \Rightarrow q$ 
 \end{tabular}}
 \end{definition}
@@ -97,7 +98,8 @@ possible valuations in a \textit{truth table}. Examples of tautologies include:
 \begin{enumerate}[i]
   \item $\entails p \Rightarrow (p \Rightarrow q)$ ``A true statement is implied by anything''
   \item $\entails (\neg \neg p) \Rightarrow p$ ``The law of double negation''
-  \item $\entails \left[p \Rightarrow (q \Rightarrow r)\right] \Rightarrow \left[(p \Rightarrow q) \Rightarrow (p \Rightarrow r) \right]$ 
+  \item $\entails \left[p \Rightarrow (q \Rightarrow r)\right] \Rightarrow 
+      \left[(p \Rightarrow q) \Rightarrow (p \Rightarrow r) \right]$ 
     (not fun)
 \end{enumerate}
 
@@ -213,34 +215,92 @@ This is made up of two directions:
 
 The first one is not too hard:
 \begin{proposition}[Soundness Theorem]
-If $S \proves t$, then $S \entails t$. 
+  If $S \proves t$, then $S \entails t$. 
 \end{proposition}
+
 \begin{proof}
-Check that all the rules in the definition of a proof are sound (i.e. if $t_{i}$ appears in a proof, then $v(t_{i})=1$). 
-\end{proof}
-Soundness always holds provided our axioms are tautologies. Adequacy seems much harder, because finding proofs of true statements is difficult. First we prove a special case.
-\begin{definition}[Consistent]
-$S$ is \textit{inconsistent} if $S \proves \bot$. $S$ is \textit{consistent}if it is not inconsistent.
-\end{definition}
-The `special case' we prove is the following:
-\begin{theorem}[Model existence theorem]
-If $S \entails \bot$, then $S \proves \bot$, i.e. if $S$ has no model, then $S$ is inconsistent. Equivalently, if $S$ is consistent, then $S$ has a model. Note to self: The formula $S \entails \bot$ looks odd, because this is defined to mean ``if $v$ is a valuation with $v(s)=1$ for all $s \in S$, then $v(\bot)=1$''. But then $v$ is not a valuation. So really it means ``There is no valuation such that $v(s)=1$ for all $s \in S$''.
-\end{theorem}
-\begin{proof}
-We called this a special case but it is actually the whole thing. If $S \entails t$, then $S \cup \{\neg t\} \entails \bot$. So $S \cup \{\neg t\}$ has no model (valuation), and hence is inconsistent by the theorem. So $S \cup \{\neg t\} \proves \bot$, and the deduction theorem tells us that $S \proves (\neg t \Rightarrow \bot) = \neg \neg t \proves t$. \\
-The idea of the proof is the following. We try to say ``let $v$ be a valuation which is $1$ if and only if $p \in S$''. But this will of course fail if $S$ can prove any statement it doesn't contain (because proofs preserve truth). In this case we say $S$ is not \textit{deductively close}. But it is easy to make $S$ deductively closed (by unioning up all of the legal proofs containing elements of $S$). However, what do we do about statements $S$ can neither prove nor disprove? (it could be very small after all). Well we have to just \textit{pick}, and the key is picking in such a way that it does not render $S$ inconsistent. 
-\begin{lemma}
-If $S \subset L$ is consistent, and $p \in L$, then at least one of $S \cup \{p\}$ and $S \cup \{\neg p\}$ is consistent. 
-\end{lemma} 
-\begin{proof}
-Suppose not. Then by the deduction theorem, $S \proves \neg p$ and $S \proves \neg \neg p \proves p$. But $\neg p = p \Rightarrow \bot$, so by modus ponens $S \proves \bot$. 
-\end{proof}
-The proof for arbitrary $L$ and $P$ requires Zorn's lemma, but for now we can handle the case where $L$ is countable easily enough. Write $L = \{t_{1},t_{2},\ldots\}$. \\
-Let $S_{0} = S$. Then at least one of $S \cup \{t_{1}\}$ and $S \cup \{\neg t_{1}\}$ is consistent. Pick one of them, and call it $S_{1}$. Do the same for all the $t_{i}$. \\
-Define $$\bar{S} = \bigcup_{i=1}^{\infty} S_{i}$$
-This set has the property that every proposition in $L$ is either in it or not in it. It automatically contains the deductive closure of $S$ (so that remark was only motivational). Suppose $\bar{S}$ were not consistent. Then because proofs are finite, we could choose some $S_{n}$ which contained the proof, and would therefore $\proves \bot$. $\bar{S}$ is deductively closed itself, because if $\bar{S} \proves p$ then $\neg p \notin \bar{S}$ (because that would make $\bar{S}$ inconsistent). Therefore $p \in \bar{S}$ (since at least one of them is in). Now define the valuation we wanted to define before, and show it is a valuation. 
+Check that all the rules in the definition of a proof are sound 
+  (i.e. if $t_{i}$ appears in a proof, then $v(t_{i})=1$). 
 \end{proof}
 
+  Soundness always holds provided our axioms are tautologies. 
+Adequacy seems much harder, because finding proofs of true 
+statements is difficult. First we prove a special case.
+
+\begin{definition}[Consistent]
+    $S$ is \textit{inconsistent} if $S \proves \bot$. 
+    $S$ is \textit{consistent} if it is not inconsistent.
+\end{definition}
+
+The `special case' we prove is the following:
+\begin{theorem}[Model existence theorem]
+  If $S \entails \bot$, then $S \proves \bot$, i.e. if $S$ has no model, then 
+  $S$ is inconsistent. Equivalently, if $S$ is consistent, then $S$ has a 
+  model. 
+\end{theorem}
+
+  Remark: The formula $S \entails \bot$ looks odd, because this is 
+defined to mean ``if $v$ is a valuation with $v(s)=1$ for all $s \in S$, then 
+$v(\bot)=1$''. But then $v$ is not a valuation. So really it means ``There is 
+no valuation such that $v(s)=1$ for all $s \in S$''.
+
+\begin{proof}
+  % If S can't prove bot then S can prove all true t
+We called this a special case but it is actually the whole thing. 
+  Let $t$ be entailed by $S$. 
+  If $S \entails t$, then $S \cup \{\neg t\} \entails \bot$. 
+  So $S \cup \{\neg t\}$ has no model (valuation), and hence is 
+  inconsistent by the theorem. So $S \cup \{\neg t\} \proves \bot$, 
+  and the deduction theorem tells us that 
+  $S \proves (\neg t \Rightarrow \bot) = \neg \neg t \proves t$. 
+
+The idea of the proof is the following. We try to say ``let $v$ be a valuation 
+  which is $1$ if and only if $p \in S$''. But this will of course fail if $S$ 
+  can prove any statement it doesn't contain (because proofs preserve truth). 
+  In this case we say $S$ is not \textit{deductively closed}. But it is easy to 
+  make $S$ deductively closed (by unioning up all of the legal proofs 
+  containing elements of $S$). However, what do we do about statements $S$ can 
+  neither prove nor disprove? (it could be very small after all). Well we have 
+  to just \textit{pick}, and the key is picking in such a way that it does not 
+  render $S$ inconsistent. 
+
+\begin{lemma}
+If $S \subset L$ is consistent, and $p \in L$, then at least one of 
+  $S \cup \{p\}$ and $S \cup \{\neg p\}$ is consistent. 
+\end{lemma} 
+
+\begin{proof}
+Suppose not. Then by the deduction theorem, 
+  $S \proves \neg p$ and $S \proves \neg \neg p \proves p$. 
+  But $\neg p = p \Rightarrow \bot$, so by modus ponens $S \proves \bot$. 
+\end{proof}
+
+The proof for arbitrary $L$ and $P$ requires Zorn's lemma, 
+  but for now we can handle the case where $L$ is countable easily enough. 
+  
+  Write $L = \{t_{1},t_{2},\ldots\}$. 
+  Let $S_{0} = S$. Then at least one of 
+  $S \cup \{t_{1}\}$ and $S \cup \{\neg t_{1}\}$ 
+  is consistent. 
+  Pick one of them, and call it $S_{1}$. Do the same for all the $t_{i}$. 
+
+Define 
+  $$\Sbar = \bigcup_{i=1}^{\infty} S_{i}$$
+  This set has the property that every proposition in $L$ 
+    is either in it or not in it. 
+  It automatically contains the deductive closure of $S$ 
+  (so that remark was only motivational). 
+  
+  Suppose $\Sbar$ were not consistent. 
+  Then because proofs are finite, we could choose 
+  some $S_{n}$ which contained the proof, and would therefore $\proves \bot$. 
+  $\Sbar$ is deductively closed itself, because 
+  if $\Sbar \proves p$ then $\neg p \notin \Sbar$ 
+  (because that would make $\Sbar$ inconsistent). 
+  Therefore $p \in \Sbar$ (since at least one of them is in). 
+  
+  Now define the valuation we wanted to define before, and show it is a valuation. 
+\end{proof}
 
 \section{Well-orderings and ordinals}
 A well ordering is a special type of total order where every non-empty subset has a least element. We can do induction and recursion on well-ordered sets (as in the case of the naturals). \\
@@ -373,93 +433,252 @@ Then we show that for any $x$, there is an attempt defined at $x$, and set $f(x)
 
 
 \section{Predicate Logic}
-Predicate logic is more powerful than propositional logic. In predicate logic we analyse \textit{structures}, such as groups. The symbols ``$S \entails t$'' now mean ``for any structure in which $S$ is true, $t$ is true''. Structures come equipped with ``functions'' of various ``arities'' (the number of arguments they receive). In group theory, for instance, we have a multiplication $m$ (parity 2), and inversion $i$ (parity 1) and an identity constant (parity $e$). We can bind and quantify variables. 
+Predicate logic is more powerful than propositional logic. In predicate logic 
+  we analyse \textit{structures}, such as groups. The symbols ``$S \entails t$'' 
+  now mean ``for any structure in which $S$ is true, $t$ is true''. 
+  Structures come equipped with ``functions'' of various ``arities'' 
+  (the number of arguments they receive). 
+
+In group theory, for instance, we have a 
+  multiplication $m$ (parity 2), an inversion $i$ (parity 1) and 
+  an identity constant $e$ (parity 0). 
+  We can bind and quantify variables. 
+
 \subsection{Language of Predicate Logic}
+
 \begin{definition}[Language]
-Let $\Omega$(function symbols) and $\Pi$ (relation symbols) be disjoint sets, and $\alpha: \Omega \cup \Pi \to \mathbb{N}$ be a function (the `arity'). The language $L = L(\Omega,Pi,\alpha)$ is the set of formulae, defined as follows: 
+Let $\Omega$  (function symbols) and $\Pi$ (relation symbols) be disjoint sets, 
+  and $\alpha: \Omega \cup \Pi \to \mathbb{N}$ be a function (the `arity'). 
+  The language $L = L(\Omega,\Pi,\alpha)$ is the set of formulae, defined as follows: 
 \begin{itemize}
-\item \textbf{Variables:} Some infinite family $x_{1},x_{2},\ldots$ (sometimes $x,y,z,\ldots$)
+
+\item \textbf{Variables:} Some infinite family $x_{1},x_{2},\ldots$ 
+    (sometimes $x,y,z,\ldots$)
+    
 \item \textbf{Terms:} Defined inductively by
 	\begin{enumerate}[i]
 	\item Every variable is a term
-	\item If $f \in \Omega$, $\alpha(f) = n$, and $t_{1},\ldots t_{n}$ are terms, then $ft_{1}\ldots t_{n}$ is a term, often written $f(t_{1},\ldots t_{n})$ instead. 
+	\item If $f \in \Omega$, $\alpha(f) = n$, and $t_{1},\ldots t_{n}$ are terms, 
+      then $ft_{1}\ldots t_{n}$ is a term, 
+        often written $f(t_{1},\ldots t_{n})$ instead. 
 	\end{enumerate}
+
 \item \textbf{Atomic Formulae:} These come in three kinds:
 	\begin{enumerate}[i]
 	\item $\bot$
 	\item $(s=t)$ for any terms $s,t$ 
-	\item $(\phi t_{1}\ldots t_{n})$ for any $\phi \in \Pi$ with $\alpha(\phi)=n$, and $t_{1},\ldots t_{n}$ terms
+	\item $(\phi t_{1}\ldots t_{n})$ for any $\phi \in \Pi$ 
+        with $\alpha(\phi)=n$, and $t_{1},\ldots t_{n}$ terms
 	\end{enumerate}
+
 \item \textbf{Formulae:} Defined inductively by
 	\begin{enumerate}[i]
 	\item Atomic formulae are formulae
 	\item $(p \Rightarrow q)$ is a formula for any formulae $p,q$
 	\item $(\forall x) p$ is a formula for any formula $p$ and variable $x$. 
 	\end{enumerate}
+
 \end{itemize}
 \end{definition}
-For example, in the language of groups, we have $\Omega = \{m,i,e\}$, $\Pi = \emptyset$, $\alpha(m) = 2$, $\alpha(i) = 1$, $\alpha(e) = 0$. We have some terms, like $e,x_{1},m(x_{1},x_{2})$, $i(m(x_{1},x_{2})$, etc. \\
-In the language of posets, $\Omega = \emptyset$, while $\Pi = \{\le \}$, and $\alpha(\le) = 2$. So things like $x_{1} = x_{2}$, $x_{1} \le x_{2}$ (meaning $\le(x_{1},x_{2})$) are atomic formulae. \\
-The language only describes the \textit{syntactic} structure of the theory; it does not impose any relationship between the terms - for instance, $m(x,i(x)) \ne e$ a priori.
+
+For example, in the language of groups, we have $\Omega = \{m,i,e\}$, 
+$\Pi = \emptyset$, $\alpha(m) = 2$, $\alpha(i) = 1$, $\alpha(e) = 0$. 
+We have some terms, like $e,x_{1},m(x_{1},x_{2})$, $i(m(x_{1},x_{2})$, etc. 
+
+In the language of posets, $\Omega = \emptyset$, while $\Pi = \{\le \}$, 
+and $\alpha(\le) = 2$. So things like $x_{1} = x_{2}$, 
+$x_{1} \le x_{2}$ (meaning $\le(x_{1},x_{2})$) are atomic formulae. 
+
+The language only describes the \textit{syntactic} structure of the theory; 
+it does not impose any relationship between the terms - for instance, 
+we do not have $m(x,i(x)) = e$ a priori.
+
 \begin{definition}[Closed term]
-A term is \emph{closed} if it contains no variables.
+  A term is \emph{closed} if it contains no variables.
 \end{definition} 
+
 \begin{definition}[Free and bound variables]
-An occurence of the variable $x$ is \textit{bound} if $x$ is in the scope of a $\forall x$ quantifier, and free otherwise.  
+  An occurence of the variable $x$ is \textit{bound} if $x$ is 
+  in the scope of a $\forall x$ quantifier, and free otherwise.  
 \end{definition}
+
 \begin{definition}[Sentence]
-A \textit{sentence} is a formula with no free variables. 
+  A \textit{sentence} is a formula with no free variables. 
 \end{definition}
+
 \begin{definition}[Substitution]
-IF $p$ is a formula, $x$ is a variable, and $t$ is a term, the $p[t/x]$ is obtained by replacing every free occurrence of $x$ by $t$. 
+  If $p$ is a formula, $x$ is a variable, and $t$ is a term, 
+  then $p[t/x]$ is obtained by replacing every free occurrence of $x$ by $t$. 
 \end{definition}
 
 \subsection{Semantic Entailment}
-We used to have valuations to determine semantic meaning. Now we have the notion of a \textit{structure}: you simply take a collection of objects which satisfy the language. 
+  We used to have valuations to determine semantic meaning. 
+  Now we have the notion of a \textit{structure}: 
+  you simply take a collection of objects which satisfy the language. 
 
 \begin{definition}[Structure]
-An $L$-structure is a non-empty set $A$ with a function $f_{A}:A^{n} \to A$ for each $f \in \Omega$ with $\alpha(f) = n$, and a relation $\phi \subset A^{n}$ for each $\phi \in \Pi$ with $\alpha(\phi) = n$. 
+  An $L$-structure is a non-empty set $A$ with 
+  a function $f_{A}:A^{n} \to A$ for each $f \in \Omega$ with $\alpha(f) = n$, 
+  and a relation $\phi \subset A^{n}$ for each $\phi \in \Pi$ with $\alpha(\phi) = n$. 
 \end{definition}
 
-Empty structures do not exist (don't be a fucking moron). Note that we still don't have axioms, so for example a group structure is simply a set $A$ with three functions $m_{A}: A^{2} \to A$, $i_{A} : A \to A$, $e_{A} \in A$. \\
-We now want to define the sentence ``$p$ holds in $A$'' for a formula $p$. Realistically, we just have to put subscripts on all the symbols, and only quantify over the set $A$. But this is a formal logic course. \\
+Empty structures do not exist. 
+Note that we still don't have axioms, so for example a group structure is 
+simply a set $A$ with three functions $m_{A}: A^{2} \to A$, 
+$i_{A} : A \to A$, $e_{A} \in A$.
+
+We now want to define the sentence ``$p$ holds in $A$'' for a formula $p$.
+Realistically, we just have to put subscripts on all the symbols, 
+and only quantify over the set $A$. But this is a formal logic course. 
+
 \begin{definition}[Interpretation]
-For a formula $p$ in $L$, its \textit{interpretation with respect to $A$} is a number $p_{A} \in \{0,1\}$ defined inductively. 
-\begin{enumerate}[i]
-\item Closed terms
-\item Atomic formulae
-\item Sentences
-\end{enumerate}
+  For a formula $p$ in $L$, its \textit{interpretation with respect to $A$} 
+  is a number $p_{A} \in \{0,1\}$ defined inductively:
+
+  \begin{enumerate}[i]
+  \item Closed terms
+    A closed term $f t_{1} t_{2} \ldots t_{n}  \in L$ corresponds to the 
+      element $f_{A}(t_{1;A}, \ldots t_{n;A} in A$.
+
+  \item Atomic formulae: There are three kinds. 
+    \begin{itemize}
+        \item $\bot$ is associated to $\bot_{A} = 0$.
+        \item $p=q$ is associated to:
+            $$(s = t)_{A} = 
+              \begin{cases}
+                1 \text{ if $s_{A} = t_{A}$} 
+                0 \text{ otherwise}
+              \end{cases}
+            $$
+        \item $\phi t_{1} \ldots t_{n}$ is mapped to 1 or 0 according to 
+            whether $(t_{1;A},t_{2;A},\ldots t_{n;A}) \in \phi_{A}$
+            
+    \end{itemize}
+  \item Sentences
+      \begin{itemize}
+        \item $p \Rightarrow q$ is associated to
+            $$(p \Rightarrow q)_{A} = 
+              \begin{cases}
+                0 \text{ if $p_{A} = 1$ and $q_{A} = 0$} 
+                1 \text{ otherwise}
+              \end{cases}
+            $$
+        \item $\forall x p$ is mapped to 
+            $$(\forall x p)_{A} = 
+              \begin{cases}
+                1 \text{ if $\forall t \in A$ $p[\tbar/x]_{A} = 1$}
+                0 \text{ otherwise}
+              \end{cases}
+            $$
+        where $\tbar$ is a dummy constant we add to $L$ 
+          in order to replace it by $t$ (note $t \notin L$).
+      \end{itemize}
+  \end{enumerate}
 \end{definition}
-We have only defined intepretations of sentences, but it is easy to give a meaningful interpretation of formulae with free variables. But I don't want to write it now. 
+
+We have only defined intepretations of sentences, but it is easy to give a 
+meaningful interpretation of formulae with free variables. 
+Ig $a_{1},\ldots a_{n}$ are free variables in a formula $p$, 
+then we can define $p_{A}$ to be the set of all $a$ which make it true, viz.
+$$p_{A} = \{(t_1, \ldots t_n) \in A \text{ such that } p[\tbar_{i}\abar_{i}]_{A} = 1\}$$
+Now we define models and entailment as in propositional logic. 
 
 \begin{definition}[Theory]
 A \textit{theory} is a set of sentences.
 \end{definition}
+
 \begin{definition}[Model]
-If a sentence $p$ has $p_{A}=1$, we say $p$ \textit{holds} in $A$, or $p$ is \textit{true} in $A$, or $A$ is a \textit{model} of $p$. For a theory $S$, a \textit{model} of $S$ is a structure that is a model for every $s \in S$. 
+  If a sentence $p$ has $p_{A}=1$, we say $p$ \textit{holds} in $A$, 
+  or $p$ is \textit{true} in $A$, or $A$ is a \textit{model} of $p$. 
+  
+  For a theory $S$, a \textit{model} of $S$ is a structure that 
+  is a model for every $s \in S$. 
 \end{definition}
+
 \begin{definition}[Semantic entailment]
-For a theory $S$ and a sentence $t$, we say $S$ \textit{entails} $t$, written $S \entails t$, if every model of $S$ is a model of $t$. 
+  For a theory $S$ and a sentence $t$, we say $S$ \textit{entails} $t$, 
+  written $S \entails t$, if every model of $S$ is a model of $t$. 
 \end{definition}
+
 \begin{definition}[Tautology]
-We say $t$ is a tautology if it holds in every model, i.e. $\emptyset \entails t$. 
+  We say $t$ is a tautology if it holds in every model, i.e. $\emptyset \entails t$. 
 \end{definition}
+
 \textbf{Example.} $\forall x (x=x)$ is a tautology. 
 \begin{enumerate}[i]
-\item Groups
-\item Fields
-\item Posets
-\item Graphs
+  \item Groups
+    
+    The language $L$ has $\Omega = \{m,i,e\}$, $\Pi = \{\}$, with 
+    arities $2,1,0$ respectively. Let $T$ be:
+    \begin{align*}
+      & \forall x \forall y \forall z m(m(x,y),z) = m(x,m(y,z)) \\
+      & \forall x m(x,i(x)) = m(i(x),x) = e \\
+      & \forall x m(x,e) = m(e,x) = x
+    \end{align*}
+
+    Then an $L$-structure $A$ is a model of $T$ iff $A$ is a group. 
+    We say $T$ textit{axiomatises} the theory of groups. 
+
+    Note that we could have used a different language and  different theory 
+    to model groups. For instance, we could remove the symbol $i$ and 
+    replace the second axiom by $\forall x \exists y m(x,y) = m(y,,x) = e$.
+
+  \item Fields
+
+    The language $L$ has $\Omega = \{+,\times,-,0,1\}$ of arities 2,2,1,0,0. 
+    There are no relations. The theory axioms consists of: 
+    \begin{align*}
+      & \text{The group axioms with $+$ as $m$, $-$ as $i$ and $0$ as $e$.} \\
+      & \forall x \forall y x+y=y+x \\
+      & \forall x \forall y x \times y = y \times x \\
+      & \forall x x \times 1 = x \land 1 \times x = x \\
+      & \forall x,y,z x \times (y+z) = x \times y + x \times z
+      & \forall x (\neg (x=0) \Rightarrow (\exists y y \times x = x \times y = 1)) \\
+      & \neg (0=1)
+    \end{align*}
+
+    Then an $L$-structure $X$ is a model of $T$ iff $X$ is a field. 
+    We have $T \entails \text{``inverses are unique''}$, i.e.
+    $$\forall y \forall z (\forall x (x \times y = 1) \land (x \times z = 1)) 
+      \Rightarrow y=z$$
+
+  \item Posets
+
+    If $\Omega = \emptyset$ and $\Pi = \{\le\}$, then the theory $T$ with
+    \begin{align*}
+      & \forall x (x \leq x) \\
+      & \forall x \forall y \forall z (x \le y \land y \le z) \Rightarrow (x \le z) \\
+      & \forall x \forall y (x \le y \land y \le x) \Rightarrow (x = y)
+    \end{align*}
+    axiomises the theory of posets. 
+
+  \item Graphs
+
+    The language $L$ is $\Omega = \emptyset$ and $\Pi = \{a\}$. 
+    The relation $a$ is `adjacent to'. Then the axioms are: 
+    \begin{align*}
+      & \forall x (\neg a(x,x)) \\
+      & \forall x \forall y (a(x,y) \iff a(y,x))
+    \end{align*}
+
 \end{enumerate}
 
-Predicate logic is ``first order'', because quantifiers may only vary over elements of the structure. This makes it difficult (in fact impossible) to axiomatize, say, the real numbers (as a complete ordered field) since the least upper bound property is quantified over \textit{subsets} of $\mathbb{R}$. 
+Predicate logic is ``first order'', because quantifiers may only vary 
+over elements of the structure. This makes it difficult (in fact impossible) 
+to axiomatize, say, the real numbers (as a complete ordered field) 
+since the least upper bound property is quantified over \textit{subsets} 
+of $\mathbb{R}$. 
 
 \subsection{Syntactic Implication}
-We need axioms and rules of inference. There are 7 axioms in predicate logic: 3 for propositions, 2 to explain $=$, and 2 to explain $\forall$. 
+We need axioms and rules of inference. 
+There are 7 axioms in predicate logic: 
+  3 for propositions, 
+  2 to explain $=$, 
+  and 2 to explain $\forall$. 
 \begin{enumerate}
 \item $p \Rightarrow (q \Rightarrow p)$ for any formulae $p,q$. 
-\item $[p \Rightarrow (q \Rightarrow r)] \Rightarrow [(p \Rightarrow q) \Rightarrow (q \Rightarrow r)]$ for any $p,q,r$.
+\item $[p \Rightarrow (q \Rightarrow r)] \Rightarrow 
+        [(p \Rightarrow q) \Rightarrow (q \Rightarrow r)]$ for any $p,q,r$.
 \item $(\neg \neg p \Rightarrow p)$ for any $p$.
 \item $\forall x (x=x)$ for any variable $x$. 
 \item $(forall x) (\forall y) ((x=y) \Rightarrow (p \Rightarrow p[y/x]))$ for any variables $x,y$ and formula $p$, with $y$ not bound in $p$. 
